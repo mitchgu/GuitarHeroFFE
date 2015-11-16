@@ -1,7 +1,7 @@
 *.jou
 *.log
 *.str
-# *.xpr We can keep the project file
+*.xpr
 *.Xil
 *.cache
 *.data
@@ -57,5 +57,3 @@ proj/*
 !proj/create_project.tcl
 !proj/cleanup.cmd
 !proj/cleanup.sh
-# and the project and bit file
-!proj/*/*.xpr
