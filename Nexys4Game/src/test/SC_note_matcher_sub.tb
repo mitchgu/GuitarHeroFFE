@@ -20,7 +20,7 @@ module SC_note_matching_sub_tb;
         .note_edge(note_edge),
         .note_time(note_time),
         .note_request(note_request),
-        .match_enable(natch_enable),
+        .match_enable(match_enable),
         .match_time(match_time)
     );
     
