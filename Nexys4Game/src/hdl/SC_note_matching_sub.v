@@ -1,6 +1,6 @@
 module SC_note_matching_sub(
     input clk,
-    input song_time, //current song time
+    input [17:0] song_time, //current song time
     input note_edge, //if note has become active (must be a single-cycle pulse)
     input [17:0] note_time, //time of next note, or all 1's if no note in buffer
     output reg note_request, //a pulse if a new note is needed to be shifted in    
@@ -11,12 +11,19 @@ module SC_note_matching_sub(
     reg [17:0] past_note, future_note; //time of closest nearby note
     localparam NOTE_TIMEOUT = 100; //time it takes for a note to no longer be considered, in 10ms (100 = 1s) 
     
-    
+    initial past_note <= 0;
+    initial future_note <= 0;
     
     always @(posedge clk) begin
         
-        if(future_note < song_time) begin
-            past_note <= future_note;
+        if(future_note < song_time && ~note_request) begin //if future note not in the future
+            past_note <= future_note; //shift in the new past_note
+            note_request <= 1; //request new note
+        end
+        else note_request <= 0;
+        
+        if(note_request) begin
+            future_note <= note_time; //shift in new future note
         end
         
         if(song_time - past_note > NOTE_TIMEOUT) begin //if nearest note is timed-out MAY CONTAIN SIGN PROBLEMS

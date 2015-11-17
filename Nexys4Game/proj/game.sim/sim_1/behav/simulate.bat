@@ -1,6 +1,6 @@
 @echo off
 set xv_path=C:\\Xilinx\\Vivado\\2015.3\\bin
-call %xv_path%/xsim nexys4_game_behav -key {Behavioral:sim_1:Functional:nexys4_game} -tclbatch nexys4_game.tcl -log simulate.log
+call %xv_path%/xsim SC_note_matching_sub_tb_behav -key {Behavioral:sim_1:Functional:SC_note_matching_sub_tb} -tclbatch SC_note_matching_sub_tb.tcl -log simulate.log
 if "%errorlevel%"=="0" goto SUCCESS
 if "%errorlevel%"=="1" goto END
 :END
