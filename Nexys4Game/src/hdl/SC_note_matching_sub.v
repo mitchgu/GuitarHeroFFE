@@ -26,7 +26,7 @@ module SC_note_matching_sub(
         if(note_edge) begin
             if( song_time - past_note < future_note - song_time) begin //match to past note. Note that if past_note is written invalid, this test will fail with extremely high probability
                 match_enable <= 1'b1;
-                match_time <= past_note
+                match_time <= past_note;
                 past_note <= 0;
             end
             else begin //match to future note
@@ -35,7 +35,7 @@ module SC_note_matching_sub(
             end
         end
         else if(match_enable) begin //reset match_enable
-            match_enable <= 0
+            match_enable <= 0;
         end
         
     end 
