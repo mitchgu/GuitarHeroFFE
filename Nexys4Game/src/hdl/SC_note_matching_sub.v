@@ -13,6 +13,8 @@ module SC_note_matching_sub(
     
     initial past_note <= 0;
     initial future_note <= 0;
+    initial match_enable <= 0;
+    initial match_time <= 0;
     
     always @(posedge clk) begin
         
