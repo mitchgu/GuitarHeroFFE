@@ -1,1 +1,0 @@
--wto "a1011104a7564bd19635010ac5476439" --debug "typical" --relax --mt "2" -L "xil_defaultlib" -L "unisims_ver" -L "unimacro_ver" -L "secureip" --snapshot "SC_note_matching_sub_tb_behav" "xil_defaultlib.SC_note_matching_sub_tb" "xil_defaultlib.glbl" -log "elaborate.log" 
