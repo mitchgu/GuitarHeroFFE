@@ -51,18 +51,18 @@ module nexys4_guitar (
     wire eoc, reset_xadc;
     // INSTANTIATE XADC GUITAR 1 INPUT
     xadc_guitar xadc_guitar_1 (
-        .dclk_in(clk_104mhz),         // Master clock for DRP and XADC. 
+        .dclk_in(clk_104mhz),  // Master clock for DRP and XADC. 
         .di_in(0),             // DRP input info (0 becuase we don't need to write)
         .daddr_in(6'h13),      // The DRP register address for the third analog aux
         .den_in(1),            // DRP enable line high (we want to read)
         .dwe_in(0),            // DRP write enable low (never write)
         .drdy_out(),           // DRP ready signal (unused)
         .do_out(sample_reg),   // DRP output from register (the ADC data)
-        .reset_in(reset_xadc),      // reset line
+        .reset_in(reset_xadc), // reset line
         .vp_in(0),             // dedicated/built in analog channel on bank 0
         .vn_in(0),             // can't use this analog channel b/c of nexys 4 setup
-        .vauxp3(guitar_p),           // The third analog auxiliary input channel
-        .vauxn3(guitar_n),           // Choose this one b/c it's on JXADC header 1
+        .vauxp3(guitar_p),     // The third analog auxiliary input channel
+        .vauxn3(guitar_n),     // Choose this one b/c it's on JXADC header 1
         .channel_out(),        // Not useful in sngle channel mode
         .eoc_out(eoc),         // Pulses high on end of ADC conversion
         .alarm_out(),          // Not useful
@@ -70,6 +70,10 @@ module nexys4_guitar (
         .busy_out()            // High when conversion is in progress. unused.
     );
 
+    // INSTANTIATE 16x OVERSAMPLING
+    // This outputs 14-bit samples at a 62.5kHz sample rate
+    // with lower noise than raw ADC output
+    // Useful for outputting to PWM audio
     wire [13:0] osample16;
     wire done_osample16;
     oversample16 osamp16_1 (
@@ -77,8 +81,11 @@ module nexys4_guitar (
         .sample(sample_reg[15:4]),
         .eoc(eoc),
         .oversample(osample16),
-        .done(done));
+        .done(done_osample16));
 
+    // INSTANTIATE 256x OVERSAMPLING
+    // This outputs 16-bit samples at a 3.9kHz sample rate
+    // This is for the FFT to do around 0-2Khz
     wire [15:0] osample256;
     wire done_osample256;
     oversample256 osamp256_1 (
@@ -86,17 +93,30 @@ module nexys4_guitar (
         .sample(sample_reg[15:4]),
         .eoc(eoc),
         .oversample(osample256),
-        .done(done));
+        .done(done_osample256));
 
-    wire [10:0] pwm_sample;
     // INSTANTIATE PWM AUDIO OUT MODULE
     // This is a PWM frequency of around 51kHz.
+    wire [10:0] pwm_sample;
     pwm11 guitar_pwm(
         .clk(clk_104mhz),
         .PWM_in(pwm_sample),
         .PWM_out(guitar_audio_pwm),
         .PWM_sd(guitar_audio_sd)
         );
+
+    // INSTANTIATE FFT PROCESSING MODULE
+    wire [11:0] haddr;
+    wire [15:0] hdata;
+    wire hwe;
+    process_fft fft1(
+        .clk(clk_104mhz),
+        .sample(osample256),
+        .ready(done_osample256),
+        .haddr(haddr),
+        .hdata(hdata),
+        .hwe(hwe)
+    );
 
     // INSTANTIATE SEVEN SEGMENT DISPLAY
     wire [31:0] seg_data;
@@ -183,7 +203,7 @@ module nexys4_guitar (
     assign LED = SW;
     
     // Display 01234567 then fsm state and timer time left
-    assign seg_data = 32'h01234567;
+    assign seg_data = {4'h0, haddr, hdata};
 
 //
 //////////////////////////////////////////////////////////////////////////////////
