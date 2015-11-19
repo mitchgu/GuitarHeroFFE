@@ -157,7 +157,7 @@ module nexys4_guitar (
         .vcount(vcount),
         .blank(blank),
         .vaddr(vaddr),
-        .vdata(data),
+        .vdata(vdata),
         .gain(hist_gain),
         .pixel(hist_pixel));
 
