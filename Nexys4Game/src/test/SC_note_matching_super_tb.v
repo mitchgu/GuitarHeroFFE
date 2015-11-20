@@ -4,14 +4,14 @@ module SC_note_matching_super_tb;
 
     // Inputs
     reg clk;
-    reg [17:0] song_time;
+    reg [15:0] song_time;
     reg [36:0] NDATA;
-    reg [37*18-1:0] metadata_link;
+    reg [37*16-1:0] metadata_link;
     
     // Outputs
     wire [36:0] metadata_request;
     wire [36:0] match_trigger;
-    wire [37*18-1:0] match_time;
+    wire [37*16-1:0] match_time;
     
     // Instantiate the Unit Under Test (UUT)
     SC_note_matching_super uut (
@@ -36,10 +36,10 @@ module SC_note_matching_super_tb;
         #100;
         
         //Stimulus
-        metadata_link[17:0] = 15; //set e2 to be played at st:15
-        metadata_link[35:18] = 10; //set f2 to be played at st:10
-        metadata_link[71:54] = 20; //set g2 to be played at st:20
-        metadata_link[89:72] = 20; //set g#2 to be played at st:20
+        metadata_link[15:0] = 15; //set e2 to be played at st:15
+        metadata_link[31:16] = 10; //set f2 to be played at st:10
+        metadata_link[63:48] = 20; //set g2 to be played at st:20
+        metadata_link[79:64] = 20; //set g#2 to be played at st:20
         
         
         #80

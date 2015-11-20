@@ -4,14 +4,14 @@ module SC_note_matching_sub_tb;
 
     // Inputs
     reg clk;
-    reg [17:0] song_time;
+    reg [15:0] song_time;
     reg note_edge;
-    reg [17:0] note_time;
+    reg [15:0] note_time;
     
     // Outputs
     wire note_request;
     wire match_enable;
-    wire [17:0] match_time;
+    wire [15:0] match_time;
     
     // Instantiate the Unit Under Test (UUT)
     SC_note_matching_sub uut (
