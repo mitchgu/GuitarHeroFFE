@@ -22,11 +22,11 @@ module nexys4_guitar (
    input[15:0] SW, 
    input BTNC, BTNU, BTNL, BTNR, BTND,
    input AD3P, AD3N,
-   //output[3:0] VGA_R, 
-   //output[3:0] VGA_B, 
-   //output[3:0] VGA_G,
-   //output VGA_HS, 
-   //output VGA_VS, 
+   output[3:0] VGA_R, 
+   output[3:0] VGA_B, 
+   output[3:0] VGA_G,
+   output VGA_HS, 
+   output VGA_VS, 
    output AUD_PWM, AUD_SD,
    output LED16_B, LED16_G, LED16_R,
    output LED17_B, LED17_G, LED17_R,
@@ -36,15 +36,17 @@ module nexys4_guitar (
    );
 
     wire clk_104mhz;
+    wire clk_65mhz;
 
     // SETUP CLOCK
     // 104Mhz clock for XADC
     // It divides by 4 and runs the ADC clock at 26Mhz
     // And the ADC can do one conversion in 26 clock cycles
     // So the sample rate is 1Msps (not posssible w/ 100Mhz)
-    clk_100_to_104mhz clockgen(
+    clk_wiz_0 clockgen(
         .clk_in1(CLK100MHZ),
-        .clk_out1(clk_104mhz));
+        .clk_out1(clk_104mhz),
+        .clk_out2(clk_65mhz));
 
 
     wire [15:0] sample_reg;
@@ -118,12 +120,56 @@ module nexys4_guitar (
         .hwe(hwe)
     );
 
+    // INSTANTIATE BLOCK RAM 
+    // This 16x2048 bram stores the histogram data.
+    // The write port is written by process_fft.
+    // The read port is read by the video outputter.
+    wire [10:0] vaddr;
+    wire [15:0] vdata;
+    bram_fft bram1 (
+        .clka(clk_104mhz), // input wire clka
+        .wea(hwe),         // input wire [0 : 0] wea
+        .addra(haddr[10:0]),     // input wire [10 : 0] addra
+        .dina(hdata),      // input wire [15 : 0] dina
+        .clkb(clk_65mhz),  // input wire clkb
+        .addrb(vaddr),     // input wire [10 : 0] addrb
+        .doutb(vdata)      // output wire [15 : 0] doutb
+    );
+
+    // INSTANTIATE XVGA SIGNALS
+    wire [10:0] hcount;
+    wire [9:0] vcount;
+    wire hsync, vsync, blank;
+    xvga xvga1(
+        .vclock(clk_65mhz),
+        .hcount(hcount),
+        .vcount(vcount),
+        .vsync(vsync),
+        .hsync(hsync),
+        .blank(blank));
+
+    // INSTANTIATE HISTOGRAM VIDEO
+    wire [2:0] hist_pixel;
+    wire [2:0] hist_gain;
+    histogram fft_histogram(
+        .clk(clk_65mhz),
+        .hcount(hcount),
+        .vcount(vcount),
+        .blank(blank),
+        .vaddr(vaddr),
+        .vdata(data),
+        .gain(hist_gain),
+        .pixel(hist_pixel));
+
     // INSTANTIATE SEVEN SEGMENT DISPLAY
     wire [31:0] seg_data;
     wire [6:0] segments;
-    display_8hex display(.clk(clk_104mhz),.data(seg_data), .seg(segments), .strobe(AN));    
-    assign SEG[6:0] = segments;
-    assign SEG[7] = 1'b1;
+    wire [7:0] strobe;
+    display_8hex display(
+        .clk(clk_104mhz),
+        .data(seg_data),
+        .seg(segments),
+        .strobe(strobe)); 
     
     // INSTANTIATE DEBOUNCED BUTTONS/SWITCHES
     wire reset_debounce;
@@ -183,6 +229,24 @@ module nexys4_guitar (
     // Use center button to reset xadc
     assign reset_xadc = center_button;
 
+    // Gain of histogram (0-7)
+    assign hist_gain = SW[3:1];
+
+    // VGA OUTPUT
+    // Histogram has two pipeline stages so we'll pipeline the hs and vs equally
+    reg hsync1, hsync2, vsync1, vsync2;
+    always @(posedge clk_65mhz) begin
+        hsync1 <= hsync;
+        hsync2 <= hsync1;
+        vsync1 <= vsync;
+        vsync2 <= vsync1;
+    end
+    assign VGA_R = {4{hist_pixel[0]}};
+    assign VGA_G = {4{hist_pixel[1]}};
+    assign VGA_B = {4{hist_pixel[2]}};
+    assign VGA_HS = hsync2;
+    assign VGA_VS = vsync2;
+
     // Debounce all buttons
     assign reset_debounce = 0;
     assign left_button_noisy = BTNL;
@@ -203,7 +267,12 @@ module nexys4_guitar (
     assign LED = SW;
     
     // Display 01234567 then fsm state and timer time left
-    assign seg_data = {4'h0, haddr, hdata};
+    assign seg_data = {29'h0, hist_gain}; 
+
+    // Link segments module output to segments
+    assign AN = strobe;  
+    assign SEG[6:0] = segments;
+    assign SEG[7] = 1'b1;
 
 //
 //////////////////////////////////////////////////////////////////////////////////
