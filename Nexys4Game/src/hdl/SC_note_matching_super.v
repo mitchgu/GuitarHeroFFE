@@ -1,12 +1,12 @@
 module SC_note_matching_super(
     input clk,
-    input [17:0] song_time,
+    input [15:0] song_time,
     input [36:0] NDATA,
-    input [37*18-1:0] metadata_link,
+    input [37*16-1:0] metadata_link,
     
     output [36:0] metadata_request,
     output [36:0] match_trigger,
-    output [37*18-1:0] match_time
+    output [37*16-1:0] match_time
     );
     
     reg [36:0] note_prev; //array of previous note-states
