@@ -72,6 +72,24 @@ module nexys4_guitar (
         .busy_out()            // High when conversion is in progress. unused.
     );
 
+    // INSTANTIATE SAMPLE FRAME BLOCK RAM 
+    // This 16x4096 bram stores the frame of samples
+    // The write port is written by osample256.
+    // The read port is read by process_fft.
+    wire fwe;
+    reg [11:0] fhead = 0;
+    wire [11:0] faddr;
+    wire [15:0] fsample, fdata;
+    bram_frame bram1 (
+        .clka(clk_104mhz),   // input wire clka
+        .wea(fwe),           // input wire [0 : 0] wea
+        .addra(fhead),     // input wire [11 : 0] addra
+        .dina(fsample),      // input wire [15 : 0] dina
+        .clkb(clk_104mhz),   // input wire clkb
+        .addrb(faddr),     // input wire [11 : 0] addrb
+        .doutb(fdata)      // output wire [15 : 0] doutb
+    );
+
     // INSTANTIATE 16x OVERSAMPLING
     // This outputs 14-bit samples at a 62.5kHz sample rate
     // with lower noise than raw ADC output
@@ -97,6 +115,12 @@ module nexys4_guitar (
         .oversample(osample256),
         .done(done_osample256));
 
+    always @(posedge clk_104mhz) begin
+        if (done_osample256) fhead <= fhead + 1;
+    end
+    assign fsample = osample256;
+    assign fwe = done_osample256;
+
     // INSTANTIATE PWM AUDIO OUT MODULE
     // This is a PWM frequency of around 51kHz.
     wire [10:0] pwm_sample;
@@ -108,31 +132,43 @@ module nexys4_guitar (
         );
 
     // INSTANTIATE FFT PROCESSING MODULE
-    wire [11:0] haddr;
+    wire [9:0] haddr;
     wire [15:0] hdata;
-    wire hwe;
+    wire hwe, error;
     process_fft fft1(
         .clk(clk_104mhz),
-        .sample(osample256),
+        .fhead(fhead),
+        .faddr(faddr),
+        .fdata(fdata),
         .ready(done_osample256),
         .haddr(haddr),
         .hdata(hdata),
-        .hwe(hwe)
+        .hwe(hwe),
+        .error(error)
     );
 
-    // INSTANTIATE BLOCK RAM 
-    // This 16x2048 bram stores the histogram data.
+    reg [15:0] max_osample = 0;
+    reg [15:0] max_hdata = 0;
+    always @(posedge clk_104mhz) begin
+        if (osample256 > max_osample)
+            max_osample <= osample256;
+        if (hdata > max_hdata);
+            max_hdata <= hdata;
+    end
+
+    // INSTANTIATE HISTOGRAM BLOCK RAM 
+    // This 16x1024 bram stores the histogram data.
     // The write port is written by process_fft.
     // The read port is read by the video outputter.
-    wire [10:0] vaddr;
+    wire [9:0] vaddr;
     wire [15:0] vdata;
-    bram_fft bram1 (
+    bram_fft bram2 (
         .clka(clk_104mhz), // input wire clka
         .wea(hwe),         // input wire [0 : 0] wea
-        .addra(haddr[10:0]),     // input wire [10 : 0] addra
+        .addra(haddr),     // input wire [9 : 0] addra
         .dina(hdata),      // input wire [15 : 0] dina
         .clkb(clk_65mhz),  // input wire clkb
-        .addrb(vaddr),     // input wire [10 : 0] addrb
+        .addrb(vaddr),     // input wire [9 : 0] addrb
         .doutb(vdata)      // output wire [15 : 0] doutb
     );
 
@@ -157,7 +193,7 @@ module nexys4_guitar (
         .vcount(vcount),
         .blank(blank),
         .vaddr(vaddr),
-        .vdata(data),
+        .vdata(vdata),
         .gain(hist_gain),
         .pixel(hist_pixel));
 
@@ -267,7 +303,7 @@ module nexys4_guitar (
     assign LED = SW;
     
     // Display 01234567 then fsm state and timer time left
-    assign seg_data = {29'h0, hist_gain}; 
+    assign seg_data = {max_osample, max_hdata}; 
 
     // Link segments module output to segments
     assign AN = strobe;  

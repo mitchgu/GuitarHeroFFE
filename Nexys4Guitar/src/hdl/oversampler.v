@@ -63,6 +63,7 @@ module oversample256(
     reg [19:0] accumulator = 0;
 
     always @(posedge clk) begin
+        done <= 0;
         if (eoc) begin
             // Conversion has ended and we can read a new sample
             if (&counter) begin // If counter is full (256 accumulated)
@@ -75,7 +76,6 @@ module oversample256(
             else begin
                 // Else add to accumulator as usual
                 accumulator <= accumulator + sample;
-                done <= 0;
             end
             counter <= counter + 1;
         end

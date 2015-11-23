@@ -49,6 +49,12 @@
 !*/src/ip/*/*.xci
 !*/src/ip/*/*.prj
 
+*/src/bd/*
+!*/src/bd/*/
+*/src/bd/*/*
+!*/src/bd/*/*.bd
+!*/src/bd/*/*.bxml
+
 # Do not ignore anything in src/others
 !*/src/others
 

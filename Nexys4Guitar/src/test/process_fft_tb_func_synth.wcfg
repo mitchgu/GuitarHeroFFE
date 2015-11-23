@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="process_fft_tb_func_synth.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="process_fft_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="161385000001fs"></ZoomEndTime>
+      <Cursor1Time time="161385000000fs"></Cursor1Time>
+   </zoom_setting>
+   <WVObjectSize size="20" />
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/ready" type="logic">
+      <obj_property name="ElementShortName">ready</obj_property>
+      <obj_property name="ObjectShortName">ready</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/count" type="array">
+      <obj_property name="ElementShortName">count[14:0]</obj_property>
+      <obj_property name="ObjectShortName">count[14:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/faddr" type="array">
+      <obj_property name="ElementShortName">faddr[11:0]</obj_property>
+      <obj_property name="ObjectShortName">faddr[11:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/fdata" type="array">
+      <obj_property name="ElementShortName">fdata[15:0]</obj_property>
+      <obj_property name="ObjectShortName">fdata[15:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/hwe" type="logic">
+      <obj_property name="ElementShortName">hwe</obj_property>
+      <obj_property name="ObjectShortName">hwe</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/error" type="logic">
+      <obj_property name="ElementShortName">error</obj_property>
+      <obj_property name="ObjectShortName">error</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/sending" type="logic">
+      <obj_property name="ElementShortName">sending</obj_property>
+      <obj_property name="ObjectShortName">sending</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/send_count" type="array">
+      <obj_property name="ElementShortName">send_count[11:0]</obj_property>
+      <obj_property name="ObjectShortName">send_count[11:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/send_valid" type="logic">
+      <obj_property name="ElementShortName">send_valid</obj_property>
+      <obj_property name="ObjectShortName">send_valid</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/send_ready" type="logic">
+      <obj_property name="ElementShortName">send_ready</obj_property>
+      <obj_property name="ObjectShortName">send_ready</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/frame_started" type="logic">
+      <obj_property name="ElementShortName">frame_started</obj_property>
+      <obj_property name="ObjectShortName">frame_started</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/frame_last" type="logic">
+      <obj_property name="ElementShortName">frame_last</obj_property>
+      <obj_property name="ObjectShortName">frame_last</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/last_missing" type="logic">
+      <obj_property name="ElementShortName">last_missing</obj_property>
+      <obj_property name="ObjectShortName">last_missing</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/last_unexpected" type="logic">
+      <obj_property name="ElementShortName">last_unexpected</obj_property>
+      <obj_property name="ObjectShortName">last_unexpected</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/recv_valid" type="logic">
+      <obj_property name="ElementShortName">recv_valid</obj_property>
+      <obj_property name="ObjectShortName">recv_valid</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/haddr" type="array">
+      <obj_property name="ElementShortName">haddr[0:9]</obj_property>
+      <obj_property name="ObjectShortName">haddr[0:9]</obj_property>
+      <obj_property name="Reversed">true</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/hdata" type="array">
+      <obj_property name="ElementShortName">hdata[0:15]</obj_property>
+      <obj_property name="ObjectShortName">hdata[0:15]</obj_property>
+      <obj_property name="Reversed">true</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/magnitude_index" type="array">
+      <obj_property name="ElementShortName">magnitude_index[0:11]</obj_property>
+      <obj_property name="ObjectShortName">magnitude_index[0:11]</obj_property>
+      <obj_property name="Reversed">true</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/process_fft_tb/dut/magnitude_data" type="array">
+      <obj_property name="ElementShortName">magnitude_data[23:0]</obj_property>
+      <obj_property name="ObjectShortName">magnitude_data[23:0]</obj_property>
+   </wvobject>
+</wave_config>

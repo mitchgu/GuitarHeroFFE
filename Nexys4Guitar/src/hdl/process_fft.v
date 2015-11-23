@@ -22,121 +22,94 @@
 
 module process_fft(
     input clk,
-    input [15:0] sample,
+    input [11:0] fhead,
+    output reg [11:0] faddr,
+    input [15:0] fdata,
     input ready,
-    output reg [11:0] haddr,
-    output reg [15:0] hdata,
-    output reg hwe
+    output [9:0] haddr,
+    output [15:0] hdata,
+    output hwe,
+    output reg error
     );
 
-    wire [31:0] sample_data;
-    wire send_valid, send_ready;
+    reg [31:0] frame_data;
+    reg frame_last, send_valid;
+    wire send_ready;
     wire [63:0] fft_data;
-    wire [15:0] user_data;
+    wire [23:0] magnitude_data;
+    wire [11:0] magnitude_index;
     wire recv_valid;
-    reg recv_ready;
+    wire frame_started, last_missing, last_unexpected;
 
-    // INSTANTIATE 4096 POINT 16-BIT FFT IP
-    // Don't really care about config channel or the events
-    // The sending and receiving channels are AXI4-STREAM
-    xfft_0 guitar_fft (
-        .aclk(clk),                       // input wire aclk
-        .s_axis_config_tdata(0),          // input wire [7 : 0] s_axis_config_tdata
-        .s_axis_config_tvalid(0),         // input wire s_axis_config_tvalid
-        .s_axis_config_tready(),          // output wire s_axis_config_tready
-        .s_axis_data_tdata(sample_data),  // input wire [31 : 0] s_axis_data_tdata
-        .s_axis_data_tvalid(send_valid),  // input wire s_axis_data_tvalid
-        .s_axis_data_tready(send_ready),  // output wire s_axis_data_tready
-        .s_axis_data_tlast(0),            // input wire s_axis_data_tlast
-        .m_axis_data_tdata(fft_data),     // output wire [63 : 0] m_axis_data_tdata
-        .m_axis_data_tuser(user_data),    // output wire [15 : 0] m_axis_data_tuser
-        .m_axis_data_tvalid(recv_valid),  // output wire m_axis_data_tvalid
-        .m_axis_data_tready(recv_ready),  // input wire m_axis_data_tready
-        .m_axis_data_tlast(),             // output wire m_axis_data_tlast
-        .event_frame_started(),           // output wire event_frame_started
-        .event_tlast_unexpected(),        // output wire event_tlast_unexpected
-        .event_tlast_missing(),           // output wire event_tlast_missing
-        .event_status_channel_halt(),     // output wire event_status_channel_halt
-        .event_data_in_channel_halt(),    // output wire event_data_in_channel_halt
-        .event_data_out_channel_halt()    // output wire event_data_out_channel_halt
-    );
+    fft_mag fft_mag_1(
+        .clk(clk),
+        .cfg_tdata(8'b0),
+        .cfg_tready(),
+        .cfg_tvalid(0),
+        .frame_tdata(frame_data),
+        .frame_tlast(frame_last),
+        .frame_tready(send_ready),
+        .frame_tvalid(send_valid),
+        .magnitude_tdata(magnitude_data),
+        .magnitude_tuser(magnitude_index),
+        .magnitude_tvalid(recv_valid),
+        .event_frame_started(frame_started),
+        .event_tlast_missing(last_missing),
+        .event_tlast_unexpected(last_unexpected),
+        .event_data_in_channel_halt(),
+        .event_data_out_channel_halt(),
+        .event_status_channel_halt());
     
     // Get a signed version of the sample by subtracting half the max
-    wire signed [15:0] sample_signed = sample - (1 << 15);
-    // Set real part of input to the audio sample and imaginary part to 0
-    assign sample_data = {16'b0, sample_signed};
-
-    // Split FFT output into real and imaginary parts
-    wire signed [15:0] real_part, imag_part;
-    // The FFT gives us an absurd 29 bits but let's just use 16
-    assign real_part = fft_data[28:13];
-    assign imag_part = fft_data[60:45];
-
-    // Pull out the FFT index
-    wire [11:0] fft_index;
-    assign fft_index = user_data[11:0];
+    wire signed [15:0] fdata_signed = fdata - (1 << 15);
 
     // SENDING LOGIC
-    // Assert valid once our oversampling is done
+    // Once our oversampling is done,
+    // Start at the frame bram head and send all 4096 buckets of bram.
     // Hopefully every time this happens, the FFT core is ready
-    assign send_valid = ready;
-
-    // RECEIVING LOGIC
-    reg [1:0] recv_state;
-    reg sqrt_start;
-    wire sqrt_done;
-    reg [31:0] rere, imim, sqrt_in;
-    wire [15:0] sqrt_out;
-
-    // INSTANTIATE SQRT Module
-    sqrt_0 sqrt_fft (
-        .aclk(clk),                           // input wire aclk
-        .s_axis_cartesian_tvalid(sqrt_start), // input wire s_axis_cartesian_tvalid
-        .s_axis_cartesian_tdata(sqrt_in),     // input wire [31 : 0] s_axis_cartesian_tdata
-        .m_axis_dout_tvalid(sqrt_done),       // output wire m_axis_dout_tvalid
-        .m_axis_dout_tdata(sqrt_out)          // output wire [15 : 0] m_axis_dout_tdata
-    );
-
-    always @(posedge clk) begin
-        // Defaults
-        hwe <= 0;
-        sqrt_start <= 0;
-        case (recv_state)
-            2'd0: begin
-                // Wait for a valid fft output
-                if (recv_valid & recv_ready) begin
-                    // fft output is ready
-                    // square the parts and assign haddr and move on
-                    // deassert ready while we calculate the magnitude
-                    recv_state <= 2'd1;
-                    haddr <= fft_index;
-                    rere <= real_part * real_part;
-                    imim <= imag_part * imag_part;
-                    recv_ready <= 0;
-                end
-                else recv_ready <= 1;
-            end
-            2'd1: begin 
-                // Sum the square of each part and start sqrt
-                recv_state <= 3'd2;
-                // Hopefully this won't overflow...
-                sqrt_in <= rere + imim;
-                sqrt_start <= 1;
-                recv_ready <= 0;
-            end
-            2'd2: begin
-                // Wait for sqrt to finish
-                if (sqrt_done) begin
-                    // sqrt finished, output data and assert hwe
-                    recv_state <= 2'd0;
-                    hdata <= sqrt_out;
-                    hwe <= 1;
-                    recv_ready <= 1;
-                end
-            end
-            default: recv_state <= 2'd0;
-        endcase
+    reg sending;
+    reg [11:0] send_count;
+    initial begin
+        sending = 0;
+        send_count = 0;
+        error = 0;
     end
 
+    always @(posedge clk) begin
+        send_valid <= 0; // Normally do not send
+        frame_last <= 0; // Normally not the end of a frame
+        if (!sending) begin
+            if (ready) begin // When a new sample shifts in
+                faddr <= fhead; // Start reading at the new head
+                send_count <= 0; // Reset send_count
+                sending <= 1; // Advance to next state
+            end
+        end
+        else begin
+            if (last_missing) begin
+                // If core thought the frame ended
+                sending <= 0; // reset to state 0
+            end
+            else begin
+                frame_data <= {16'b0, fdata_signed}; // Send the prev sample (signed) to fft
+                send_valid <= 1; // Signal to fft a sample is ready
+                if (&send_count) begin
+                    // If we're at last sample
+                    frame_last <= 1; // Tell the core
+                    if (send_ready) sending <= 0; // Reset to state 0
+                end
+            end
+            if (send_ready) begin // If the fft module was ready
+                faddr <= faddr + 1; // Switch to read next sample for next clock cycle
+                send_count <= send_count + 1; // increment send_count 
+            end
+        end
+        error <= error | last_missing | last_unexpected;
+    end
+
+    // RECEIVING LOGIC
+    assign hdata = magnitude_data[15:0];
+    assign haddr = magnitude_index[9:0];
+    assign hwe = (magnitude_index[11:10] == 0) ? recv_valid: 0;
 
 endmodule
