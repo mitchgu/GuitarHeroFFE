@@ -6,16 +6,18 @@ module SC_block(
     input [37*16-1:0] metadata_link, //input from the metadata table
     
     output [36:0] metadata_request, //request line to metadata table
-    output score, //score output to the AV block DETERMINE WIDTH
+    output [31:0] score, //score output to the AV block ARBITRARY WIDTH
     output fret,
     output note_time,
-    output en
+    output en //FIXME
     
     
     );
     
     wire [36:0] match_trigger;
     wire [37*16-1:0] match_time;
+    wire match_en;
+    wire [15:0] match_dt;
     
     SC_note_matching_super note_matcher (
         .clk(clk),
@@ -31,14 +33,16 @@ module SC_block(
         .clk(clk),
         .song_time(song_time),
         .match_trigger(match_trigger),
-        .match_time(match_time)
+        .match_time(match_time),
         
-        
+        .match_en(match_en),
+        .match_dt(match_dt)
     );
     
     SC_score score (
         .clk(clk),
-        .dt(dt),
+        .dt(match_dt),
+        .en(match_en),
         
         .score(score)
     );
