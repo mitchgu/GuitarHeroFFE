@@ -1,1 +1,0 @@
-The Vivado project folder should go here.
