@@ -11,18 +11,7 @@ module SC_note_matching_super(
     
     reg [36:0] note_prev; //array of previous note-states
     wire [36:0] note_edge; //note edge transitions detected
-    
-    //create 37 note sub_modules
-    //genvar i;
-    //generate
-    //    for (i = 0; i < 37; i = i + 1) begin : gen_loop
-    //        SC_note_matching_sub note_matcher(.clk(clk), .song_time(song_time),
-    //                                            .note_edge(note_edge[i]), .note_time(metadata_link[18*i+17:18*i]),
-    //                                            .note_request(metadata_request[i]), .match_enable(match_trigger[i]),
-    //                                            .match_time(match_time[18*i+17:18*i]));
-    //    end
-    //endgenerate
-    
+
     //create 37 note_matcher_submodules
     SC_note_matching_sub note_matcher [36:0] (.clk(clk), .song_time(song_time),
                                                     .note_edge(note_edge), .note_time(metadata_link),
