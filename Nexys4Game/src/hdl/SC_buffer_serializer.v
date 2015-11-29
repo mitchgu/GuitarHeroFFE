@@ -5,8 +5,7 @@ module SC_buffer_serializer(
     input [37*16-1:0] match_time,
     
     output reg match_en,
-    output reg [15:0] match_dt,
-    output [15:0] queue
+    output reg [15:0] match_dt
     );
     
     reg [17*6-1:0] match_queue; //represents a shift register with 6 shifts of 17 bits each, where the MSB means a valid match needs to be scored, and the next 16 bits are the dt

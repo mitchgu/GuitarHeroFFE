@@ -11,7 +11,6 @@ module SC_buffer_serializer_tb;
     // Outputs
     wire match_en;
     wire [15:0] match_dt;
-    wire [15:0] queue;
     
     // Instantiate the Unit Under Test (UUT)
     SC_buffer_serializer uut (
@@ -20,8 +19,7 @@ module SC_buffer_serializer_tb;
         .match_trigger(match_trigger),
         .match_time(match_time),
         .match_en(match_en),
-        .match_dt(match_dt),
-        .queue(queue)
+        .match_dt(match_dt)
     );
     
     always #5 clk = !clk;
