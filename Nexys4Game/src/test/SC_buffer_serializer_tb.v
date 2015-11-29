@@ -34,7 +34,7 @@ module SC_buffer_serializer_tb;
         #100;
         
         //Stimulus
-        #1000
+        #995
         match_trigger = 1; //match e2
         match_time[15:0] = 7;
         #10
