@@ -11,6 +11,7 @@ module SC_buffer_serializer_tb;
     // Outputs
     wire match_en;
     wire [15:0] match_dt;
+    wire [15:0] queue;
     
     // Instantiate the Unit Under Test (UUT)
     SC_buffer_serializer uut (
@@ -19,11 +20,12 @@ module SC_buffer_serializer_tb;
         .match_trigger(match_trigger),
         .match_time(match_time),
         .match_en(match_en),
-        .match_dt(match_dt)
+        .match_dt(match_dt),
+        .queue(queue)
     );
     
     always #5 clk = !clk;
-    always #10 song_time = song_time + 1;
+    always #100 song_time = song_time + 1;
     initial begin
         // Initialize Inputs
         clk = 0;
@@ -34,7 +36,7 @@ module SC_buffer_serializer_tb;
         #100;
         
         //Stimulus
-        
+        #1000
         match_trigger = 1; //match e2
         match_time[15:0] = 7;
         #10
