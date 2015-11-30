@@ -3,7 +3,10 @@ module CL_metadata_controller(
     input clk25, //25mhz clk
     input write_en, //signals a new word to be written
     input [31:0] write_word, //word to be written    
+    input [36:0] metadata_request,
     
+    output reg [36:0] metadata_available,
+    output reg [37*16-1:0] metadata_link,
     output reg loaded
     
     );
@@ -12,6 +15,7 @@ module CL_metadata_controller(
     reg [11:0] new_pointer = 0; //1 clk delay on updating pointer
     
     initial loaded = 0;
+    initial metadata_link = 0;
     
     reg we;
     reg [31:0] din;
@@ -35,6 +39,10 @@ module CL_metadata_controller(
             we <= 0;
         end
         pointer <= new_pointer;
+        
+        if(metadata_request != 0) begin
+        end
+        
     end
     
     

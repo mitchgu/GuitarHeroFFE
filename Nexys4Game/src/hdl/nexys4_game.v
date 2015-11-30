@@ -70,7 +70,7 @@ module nexys4_game(
     wire pause, reset;
 
     wire [37*16-1:0] metadata_link;
-    wire [36:0] metadata_request;
+    wire [36:0] metadata_request, metadata_available;
     
     SC_block SC(
         .clk(CLK100MHZ),
@@ -78,6 +78,7 @@ module nexys4_game(
         .song_time(song_time),
         .NDATA(),
         .metadata_link(metadata_link),
+        .metadata_available(metadata_available),
         
         .metadata_request(metadata_request),
         .score(),
@@ -100,6 +101,7 @@ module nexys4_game(
         .SD_SCK(),
         .SD_CMD(),
         .metadata_link(metadata_link),
+        .metadata_available(metadata_available),
         .reset(reset),
         .pause(pause),
         .song_time(song_time)

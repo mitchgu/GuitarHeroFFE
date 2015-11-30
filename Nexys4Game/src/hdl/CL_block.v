@@ -12,6 +12,7 @@ module CL_block(
     output SD_SCK,
     output SD_CMD,
     output [37*16-1:0] metadata_link,
+    output [36:0] metadata_available,
     output reset, //status signal for reset
     output pause, //status signal for game-pause
     output song_time //current song_time
@@ -153,9 +154,12 @@ module CL_block(
         .clk25(clk25),
         .write_en(write_data),
         .write_word(data_word),
+        .metadata_request(metadata_request),
         
         //TODO
         
+        .metadata_available(),
+        .metadata_link(metadata_link),
         .loaded(data_loaded)
     );
     
