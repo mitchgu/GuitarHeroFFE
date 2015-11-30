@@ -15,8 +15,13 @@ module CL_block(
     output song_time //current song_time
     );
     
+    wire data_loaded;
+    
     //////////////////////////////////////////////////////////////////////////////////
     //  SD stuff
+    
+    localparam SONG_ADR = 32'h00_01_00_00;
+    localparam DATA_ADR = 32'h00_00_00_00;
         
     wire rst = reset;
     wire spiClk;
@@ -89,9 +94,62 @@ module CL_block(
         .status(state), // For debug purposes: Current state of controller.
     );
     
+    reg [31:0] data_word;
+    
+    reg [1:0] bytes_read = 0;
+    
+    always @(posedge clk25) begin
+        if(!data_loaded) begin //need to load metadata
+            if(ready) begin //begin a read
+                rd <= 1;
+                adr <= DATA_ADR;
+            end
+            else begin //read bytes, make words
+                if(ready_for_next_byte) begin
+                    case (bytes_read)
+                        0: begin
+                            data_word[31:24] <= dout;
+                            bytes_read <= 1;
+                            write_data <= 0;
+                        end
+                        1: begin
+                            data_word[23:16] <= dout;
+                            bytes_read <= 2;
+                            write_data <= 0;
+                        end
+                        2: begin
+                            data_word[15:8] <= dout;
+                            bytes_read <= 3;
+                            write_data <= 0;
+                        end
+                        3: begin
+                            data_word[7:0] <= dout;
+                            bytes_read <= 0;
+                            write_data <= 1;
+                        end
+                    endcase
+                end
+                else
+                    write_data <= 0;
+            end
+        end
+        //else if LOAD SONG
+    end
+    
     //
     //////////////////////////////////////////////////////////////////////////////////
 
+    
+    CL_metadata_controller metadata_memory(
+        .clk(clk),
+        .clk25(clk25),
+        .write_en(write_data)
+        .write_word(data_word)
+        
+        //TODO
+        
+        .loaded(data_loaded)
+    );
     
     CL_fsm fsm (
         .clk(clk),

@@ -88,8 +88,13 @@ module nexys4_game(
         .clk25(CLK25MHZ),
         .pause_SW(switch0),
         .reset_button(center_button),
+        .SD_CD(),
+        
         .SD_DAT(),
         
+        .SD_RESET(),
+        .SD_SCK(),
+        .SD_CMD(),
         .reset(reset),
         .pause(pause),
         .song_time(song_time)

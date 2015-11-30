@@ -1,6 +1,8 @@
 module CL_metadata_controller(
     input clk, //100mhz clk
-    
+    input clk25, //25mhz clk
+    input write_en, //signals a new word to be written
+    input [31:0] write_word, //word to be written    
     
     output reg loaded
     
