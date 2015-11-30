@@ -3,6 +3,7 @@ module CL_block(
     input clk25, //25mhz clk
     input pause_SW, //Debounced switch input for pause
     input reset_button, //Debounced button for reset
+    input [36:0] metadata_request,
     input SD_CD,
     
     inout [3:0] SD_DAT,
@@ -10,12 +11,15 @@ module CL_block(
     output SD_RESET,
     output SD_SCK,
     output SD_CMD,
+    output [37*16-1:0] metadata_link,
     output reset, //status signal for reset
     output pause, //status signal for game-pause
     output song_time //current song_time
     );
     
     wire data_loaded;
+    //wire song_loaded;
+    reg song_loaded = 1; //assuming no song for now
     
     //////////////////////////////////////////////////////////////////////////////////
     //  SD stuff
@@ -53,7 +57,8 @@ module CL_block(
     wire byte_available;
     wire ready;
     wire ready_for_next_byte;
-    reg [31:0] adr = 32'h00_00_00_00;
+    reg [31:0] adr = DATA_ADR;
+    reg [31:0] next_adr = DATA_ADR;
     
     reg [15:0] bytes = 0;
     reg [1:0] bytes_read = 0;
@@ -102,10 +107,10 @@ module CL_block(
         if(!data_loaded) begin //need to load metadata
             if(ready) begin //begin a read
                 rd <= 1;
-                adr <= DATA_ADR;
+                next_adr <= adr + 512;
             end
-            else begin //read bytes, make words
-                if(ready_for_next_byte) begin
+            else begin //read bytes, make words (4 bytes each)
+                if(byte_available) begin
                     case (bytes_read)
                         0: begin
                             data_word[31:24] <= dout;
@@ -133,7 +138,10 @@ module CL_block(
                     write_data <= 0;
             end
         end
-        //else if LOAD SONG
+        else if(!song_loaded) begin
+            //
+        end
+        adr <= next_adr;
     end
     
     //
@@ -143,8 +151,8 @@ module CL_block(
     CL_metadata_controller metadata_memory(
         .clk(clk),
         .clk25(clk25),
-        .write_en(write_data)
-        .write_word(data_word)
+        .write_en(write_data),
+        .write_word(data_word),
         
         //TODO
         
@@ -154,6 +162,8 @@ module CL_block(
     CL_fsm fsm (
         .clk(clk),
         .pause_SW(pause_SW),
+        .data_loaded(data_loaded),
+        .song_loaded(song_loaded),
         .reset_trigger(reset_button),
         
         .pause(pause),
