@@ -41,8 +41,8 @@ module SC_block(
     
     SC_score score (
         .clk(clk),
-        .dt(match_dt),
         .en(match_en),
+        .dt(match_dt),
         
         .score(score)
     );

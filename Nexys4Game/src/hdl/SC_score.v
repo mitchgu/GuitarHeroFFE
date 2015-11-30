@@ -1,7 +1,7 @@
 module SC_score(
     input clk, //100mhz clk
-    input [15:0] dt, //margin of correctness for a matched note
     input en, //match enable
+    input [15:0] dt, //margin of correctness for a matched note
     
     output reg [31:0] score //total score ARBITRARY 32 bit width
     );
