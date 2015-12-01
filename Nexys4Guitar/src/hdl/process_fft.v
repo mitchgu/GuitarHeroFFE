@@ -69,6 +69,8 @@ module process_fft(
     // Hopefully every time this happens, the FFT core is ready
     reg sending;
     reg [11:0] send_count;
+    wire [11:0] next_send_count;
+    assign next_send_count = send_count + 1;
     initial begin
         sending = 0;
         send_count = 0;
@@ -98,10 +100,10 @@ module process_fft(
                     frame_last <= 1; // Tell the core
                     if (send_ready) sending <= 0; // Reset to state 0
                 end
-            end
-            if (send_ready) begin // If the fft module was ready
-                faddr <= faddr + 1; // Switch to read next sample for next clock cycle
-                send_count <= send_count + 1; // increment send_count 
+                if (send_ready) begin // If the fft module was ready
+                    faddr <= faddr + 1; // Switch to read next sample
+                    send_count <= send_count + 1; // increment send_count 
+                end
             end
         end
         error <= error | last_missing | last_unexpected;

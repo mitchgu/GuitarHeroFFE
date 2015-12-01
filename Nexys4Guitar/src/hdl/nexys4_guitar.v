@@ -18,25 +18,31 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module nexys4_guitar (
-   input CLK100MHZ,
-   input[15:0] SW, 
-   input BTNC, BTNU, BTNL, BTNR, BTND,
-   input AD3P, AD3N,
-   output[3:0] VGA_R, 
-   output[3:0] VGA_B, 
-   output[3:0] VGA_G,
-   output VGA_HS, 
-   output VGA_VS, 
-   output AUD_PWM, AUD_SD,
-   output LED16_B, LED16_G, LED16_R,
-   output LED17_B, LED17_G, LED17_R,
-   output[15:0] LED, // LEDs above switches
-   output[7:0] SEG,  // segments A-G (0-6), DP (7)
-   output[7:0] AN    // Display 0-7
-   );
+    input CLK100MHZ,
+    input[15:0] SW, 
+    input BTNC, BTNU, BTNL, BTNR, BTND,
+    input AD3P, AD3N,
+    output[3:0] VGA_R, 
+    output[3:0] VGA_B, 
+    output[3:0] VGA_G,
+    output VGA_HS, 
+    output VGA_VS, 
+    output AUD_PWM, AUD_SD,
+    input SD_CD,
+    output SD_RESET,
+    output SD_SCK,
+    output SD_CMD, 
+    inout [3:0] SD_DAT,
+    output LED16_B, LED16_G, LED16_R,
+    output LED17_B, LED17_G, LED17_R,
+    output[15:0] LED, // LEDs above switches
+    output[7:0] SEG,  // segments A-G (0-6), DP (7)
+    output[7:0] AN    // Display 0-7
+    );
 
     wire clk_104mhz;
     wire clk_65mhz;
+    wire clk_25mhz;
 
     // SETUP CLOCK
     // 104Mhz clock for XADC
@@ -46,7 +52,8 @@ module nexys4_guitar (
     clk_wiz_0 clockgen(
         .clk_in1(CLK100MHZ),
         .clk_out1(clk_104mhz),
-        .clk_out2(clk_65mhz));
+        .clk_out2(clk_65mhz),
+        .clk_out3(clk_25mhz));
 
 
     wire [15:0] sample_reg;
@@ -159,17 +166,32 @@ module nexys4_guitar (
     // INSTANTIATE HISTOGRAM BLOCK RAM 
     // This 16x1024 bram stores the histogram data.
     // The write port is written by process_fft.
-    // The read port is read by the video outputter.
-    wire [9:0] vaddr;
-    wire [15:0] vdata;
+    // The read port is read by the video outputter or the SD care saver
+    // Assign histogram bram read address to histogram module unless saving
+    wire [9:0] hist_vaddr;
+    wire [15:0] hist_vdata;
     bram_fft bram2 (
         .clka(clk_104mhz), // input wire clka
         .wea(hwe),         // input wire [0 : 0] wea
         .addra(haddr),     // input wire [9 : 0] addra
         .dina(hdata),      // input wire [15 : 0] dina
         .clkb(clk_65mhz),  // input wire clkb
-        .addrb(vaddr),     // input wire [9 : 0] addrb
-        .doutb(vdata)      // output wire [15 : 0] doutb
+        .addrb(hist_vaddr),     // input wire [9 : 0] addrb
+        .doutb(hist_vdata)      // output wire [15 : 0] doutb
+    );
+
+    wire hwe_safe;
+    assign hwe_safe = (saving) ? 0 : hwe;
+    wire [9:0] save_addr;
+    wire [15:0] save_data;
+    bram_fft bram3 (
+        .clka(clk_104mhz), // input wire clka
+        .wea(hwe_safe),         // input wire [0 : 0] wea
+        .addra(haddr),     // input wire [9 : 0] addra
+        .dina(hdata),      // input wire [15 : 0] dina
+        .clkb(clk_25mhz),  // input wire clkb
+        .addrb(save_addr),     // input wire [9 : 0] addrb
+        .doutb(save_data)      // output wire [15 : 0] doutb
     );
 
     // INSTANTIATE XVGA SIGNALS
@@ -192,10 +214,62 @@ module nexys4_guitar (
         .hcount(hcount),
         .vcount(vcount),
         .blank(blank),
-        .vaddr(vaddr),
-        .vdata(vdata),
+        .vaddr(hist_vaddr),
+        .vdata(hist_vdata),
         .gain(hist_gain),
         .pixel(hist_pixel));
+
+    wire sd_cs, sd_mosi, sd_miso, sd_sclk, sd_wr, sd_ready_for_next_byte, sd_ready;
+    wire [7:0] sd_din;
+    wire [31:0] sd_address;
+    sd_controller sdc(
+        .cs(sd_cs), // Connect to SD_DAT[3].
+        .mosi(sd_mosi), // Connect to SD_CMD.
+        .miso(sd_miso), // Connect to SD_DAT[0].
+        .sclk(sd_sclk), // Connect to SD_SCK.
+                    // For SPI mode, SD_DAT[2] and SD_DAT[1] should be held HIGH. 
+                    // SD_RESET should be held LOW.
+
+        .rd(0),   // Read-enable. When [ready] is HIGH, asseting [rd] will 
+                    // begin a 512-byte READ operation at [address]. 
+                    // [byte_available] will transition HIGH as a new byte has been
+                    // read from the SD card. The byte is presented on [dout].
+        .dout(), // Data output for READ operation.
+        .byte_available(), // A new byte has been presented on [dout].
+
+        .wr(sd_wr),   // Write-enable. When [ready] is HIGH, asserting [wr] will
+                    // begin a 512-byte WRITE operation at [address].
+                    // [ready_for_next_byte] will transition HIGH to request that
+                    // the next byte to be written should be presentaed on [din].
+        .din(sd_din), // Data input for WRITE operation.
+        .ready_for_next_byte(sd_ready_for_next_byte), // A new byte should be presented on [din].
+
+        .reset(0), // Resets controller on assertion.
+        .ready(sd_ready), // HIGH if the SD card is ready for a read or write operation.
+        .address(sd_address),   // Memory address for read/write operation. This MUST 
+                                // be a multiple of 512 bytes, due to SD sectoring.
+        .clk(clk_25mhz),  // 25 MHz clock.
+        .status() // For debug purposes: Current state of controller.
+    );
+
+    reg old_center_button = 0;
+    always @(posedge clk_25mhz) old_center_button <= center_button;
+    assign save_start = center_button & ~old_center_button;
+    wire saving;
+    wire [3:0] save_slot;
+    histogram_saver hsaver(
+        .clk(clk_25mhz),
+        .start(save_start),
+        .slot(save_slot),
+        .vaddr(save_addr),
+        .vdata(save_data),
+        .sd_ready(sd_ready),
+        .sd_address(sd_address),
+        .sd_wr(sd_wr),
+        .sd_din(sd_din),
+        .sd_ready_for_next_byte(sd_ready_for_next_byte),
+        .saving(saving)
+        );
 
     // INSTANTIATE SEVEN SEGMENT DISPLAY
     wire [31:0] seg_data;
@@ -227,7 +301,7 @@ module nexys4_guitar (
         .clean(right_button));
                 
     // Debounce up btn
-    wire up_button_noisy, up_button_door;
+    wire up_button_noisy, up_button;
     debounce up_button_debouncer(
         .clock(clk_104mhz),
         .reset(reset_debounce),
@@ -244,8 +318,8 @@ module nexys4_guitar (
                         
     // Debounce center btn
     wire center_button_noisy, center_button;
-    debounce center_button_debouncer(
-        .clock(clk_104mhz),
+    debounce #(.DELAY(250000)) center_button_debouncer(
+        .clock(clk_25mhz),
         .reset(reset_debounce),
         .noisy(center_button_noisy),
         .clean(center_button));
@@ -263,7 +337,7 @@ module nexys4_guitar (
     assign AUD_SD = guitar_audio_sd;
 
     // Use center button to reset xadc
-    assign reset_xadc = center_button;
+    assign reset_xadc = up_button;
 
     // Gain of histogram (0-7)
     assign hist_gain = SW[3:1];
@@ -283,6 +357,17 @@ module nexys4_guitar (
     assign VGA_HS = hsync2;
     assign VGA_VS = vsync2;
 
+    // SD CARD CONTROLLER (SPI MODE)
+    assign SD_DAT[3] = sd_cs;
+    assign SD_CMD = sd_mosi;
+    assign sd_miso = SD_DAT[0];
+    assign SD_SCK = sd_sclk;
+    assign SD_DAT[2:1] = 2'b11;
+    assign SD_RESET = 0;
+
+    // HISTOGRAM SAVER INTERFACE
+    assign save_slot = SW[7:4];
+
     // Debounce all buttons
     assign reset_debounce = 0;
     assign left_button_noisy = BTNL;
@@ -297,7 +382,7 @@ module nexys4_guitar (
     assign LED17_B = center_button;
     assign LED16_R = right_button;
     assign LED16_G = down_button;
-    assign LED16_B = center_button;
+    assign LED16_B = saving;
     
     // Assign switch LEDs to switch states
     assign LED = SW;
