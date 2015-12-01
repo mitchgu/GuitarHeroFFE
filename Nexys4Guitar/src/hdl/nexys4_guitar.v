@@ -219,7 +219,7 @@ module nexys4_guitar (
         .gain(hist_gain),
         .pixel(hist_pixel));
 
-    wire sd_cs, sd_mosi, sd_miso, sd_sclk, sd_wr, sd_ready_for_next_byte, sd_ready;
+    wire sd_cs, sd_mosi, sd_miso, sd_sclk, sd_wr, sd_ready_for_next_byte, sd_ready, sd_reset;
     wire [7:0] sd_din;
     wire [31:0] sd_address;
     sd_controller sdc(
@@ -244,7 +244,7 @@ module nexys4_guitar (
         .din(sd_din), // Data input for WRITE operation.
         .ready_for_next_byte(sd_ready_for_next_byte), // A new byte should be presented on [din].
 
-        .reset(0), // Resets controller on assertion.
+        .reset(sd_reset), // Resets controller on assertion.
         .ready(sd_ready), // HIGH if the SD card is ready for a read or write operation.
         .address(sd_address),   // Memory address for read/write operation. This MUST 
                                 // be a multiple of 512 bytes, due to SD sectoring.
@@ -255,10 +255,11 @@ module nexys4_guitar (
     reg old_center_button = 0;
     always @(posedge clk_25mhz) old_center_button <= center_button;
     assign save_start = center_button & ~old_center_button;
-    wire saving;
+    wire saver_reset, saving;
     wire [3:0] save_slot;
     histogram_saver hsaver(
         .clk(clk_25mhz),
+        .reset(saver_reset),
         .start(save_start),
         .slot(save_slot),
         .vaddr(save_addr),
@@ -310,8 +311,8 @@ module nexys4_guitar (
 
     // Debounce down btn
     wire down_button_noisy, down_button;
-    debounce down_button_debouncer(
-        .clock(clk_104mhz),
+    debounce #(.DELAY(250000)) down_button_debouncer(
+        .clock(clk_25mhz),
         .reset(reset_debounce),
         .noisy(down_button_noisy),
         .clean(down_button));
@@ -364,6 +365,8 @@ module nexys4_guitar (
     assign SD_SCK = sd_sclk;
     assign SD_DAT[2:1] = 2'b11;
     assign SD_RESET = 0;
+    assign sd_reset = down_button;
+    assign saver_reset = down_button;
 
     // HISTOGRAM SAVER INTERFACE
     assign save_slot = SW[7:4];

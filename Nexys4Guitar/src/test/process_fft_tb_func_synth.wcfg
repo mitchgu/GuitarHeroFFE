@@ -11,11 +11,11 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0fs"></ZoomStartTime>
-      <ZoomEndTime time="120000000001fs"></ZoomEndTime>
-      <Cursor1Time time="120000000000fs"></Cursor1Time>
+      <ZoomStartTime time="4942433334fs"></ZoomStartTime>
+      <ZoomEndTime time="5615433335fs"></ZoomEndTime>
+      <Cursor1Time time="4822433000fs"></Cursor1Time>
    </zoom_setting>
-   <WVObjectSize size="12" />
+   <WVObjectSize size="11" />
    <wvobject db_ref_id="1" fp_name="/histogram_saver_tb/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -61,9 +61,5 @@
    <wvobject db_ref_id="1" fp_name="/histogram_saver_tb/dut/next_half" type="logic">
       <obj_property name="ElementShortName">next_half</obj_property>
       <obj_property name="ObjectShortName">next_half</obj_property>
-   </wvobject>
-   <wvobject db_ref_id="1" fp_name="/histogram_saver_tb/sd_ready_for_next_byte" type="logic">
-      <obj_property name="ElementShortName">sd_ready_for_next_byte</obj_property>
-      <obj_property name="ObjectShortName">sd_ready_for_next_byte</obj_property>
    </wvobject>
 </wave_config>

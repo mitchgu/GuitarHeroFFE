@@ -22,6 +22,7 @@
 
 module histogram_saver(
     input clk,
+    input reset,
     input start,
     input [3:0] slot,
     output reg [9:0] vaddr,
@@ -44,8 +45,10 @@ module histogram_saver(
     reg [1:0] save_state = STANDBY;
     reg next_half = MSHALF;
     reg [1:0] sector = 2'b00;
+    reg last_ready;
 
     always @(posedge clk) begin
+        last_ready <= sd_ready_for_next_byte;
         case (save_state)
             STANDBY: begin
                 saving <= 0;
@@ -61,8 +64,8 @@ module histogram_saver(
                 if (sd_ready) begin
                     save_state <= START;
                     sd_wr <= 1;
-                    sd_din <= vdata[15:8];
-                    next_half <= LSHALF;
+                    sd_din <= 8'hFF;
+                    next_half <= MSHALF;
                 end
             end
             START: begin
@@ -82,7 +85,7 @@ module histogram_saver(
                         save_state <= INIT;
                     end
                 end
-                else if(sd_ready_for_next_byte) begin
+                else if(sd_ready_for_next_byte & ~last_ready) begin
                     if (next_half == LSHALF) begin
                         sd_din <= vdata[7:0];
                         next_half <= MSHALF;
@@ -96,6 +99,9 @@ module histogram_saver(
             end
             default: save_state <= STANDBY;
         endcase
+        if (reset) begin
+            save_state <= STANDBY;
+        end
     end
 
 endmodule
