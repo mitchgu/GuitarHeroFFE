@@ -3,6 +3,7 @@ module SC_note_matching_super(
     input [15:0] song_time,
     input [36:0] NDATA,
     input [37*16-1:0] metadata_link,
+    input [36:0] metadata_available,
     
     output [36:0] metadata_request,
     output [36:0] match_trigger,
@@ -14,7 +15,7 @@ module SC_note_matching_super(
 
     //create 37 note_matcher_submodules
     SC_note_matching_sub note_matcher [36:0] (.clk(clk), .song_time(song_time),
-                                                    .note_edge(note_edge), .note_time(metadata_link),
+                                                    .note_edge(note_edge), .note_time(metadata_link), .note_available(metadata_available),
                                                     .note_request(metadata_request), .match_enable(match_trigger),
                                                     .match_time(match_time));
             

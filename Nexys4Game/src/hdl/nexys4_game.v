@@ -34,6 +34,9 @@ module nexys4_game(
    output[7:0] AN    // Display 0-7
    );
 
+    wire CLK25MHZ;
+    clock_4divider clk_divider(.clk(CLK100MHZ),.clk_div(CLK25MHZ));
+
 //  INSTANTIATE SEVEN SEGMENT DISPLAY
     wire [31:0] seg_data;
     wire [6:0] segments;
@@ -44,40 +47,16 @@ module nexys4_game(
 // INSTANTIATE DEBOUNCED BUTTONS/SWITCHES
     wire reset_debounce;
 
-    // Debounce driver door btn
-    wire left_button_noisy, left_button;
-    debounce left_button_debouncer(
-        .clock(CLK100MHZ),
-        .reset(reset_debounce),
-        .noisy(left_button_noisy),
-        .clean(left_button));
-        
-    // Debounce passenger door btn
-    wire right_button_noisy, right_button;
-    debounce right_button_debouncer(
-        .clock(CLK100MHZ),
-        .reset(reset_debounce),
-        .noisy(right_button_noisy),
-        .clean(right_button));
-                
-    // Debounce hidden switch
-    wire up_button_noisy, up_button_door;
-    debounce up_button_debouncer(
-        .clock(CLK100MHZ),
-        .reset(reset_debounce),
-        .noisy(up_button_noisy),
-        .clean(up_button));
-
-    // Debounce brake switch
-    wire down_button_noisy, down_button;
+    // Debounce pause switch
+    wire switch0_noisy, switch0;
     debounce down_button_debouncer(
         .clock(CLK100MHZ),
         .reset(reset_debounce),
-        .noisy(down_button_noisy),
-        .clean(down_button));
+        .noisy(switch0_noisy),
+        .clean(switch0));
                         
-    // Debounce hidden switch
-    wire center_button_noisy, center_button_door;
+    // Debounce reset button
+    wire center_button_noisy, center_button;
     debounce center_button_debouncer(
         .clock(CLK100MHZ),
         .reset(reset_debounce),
@@ -85,13 +64,68 @@ module nexys4_game(
         .clean(center_button));
 
 //////////////////////////////////////////////////////////////////////////////////
+//  BLOCKS
+
+    wire [15:0] song_time;
+    wire pause, reset;
+
+    wire [37*16-1:0] metadata_link;
+    wire [36:0] metadata_request, metadata_available;
+    
+    SC_block SC(
+        .clk(CLK100MHZ),
+        .pause(pause),
+        .song_time(song_time),
+        .NDATA(),
+        .metadata_link(metadata_link),
+        .metadata_available(metadata_available),
+        
+        .metadata_request(metadata_request),
+        .score(),
+        .fret(),
+        .note_time(),
+        .en()
+    );
+
+    CL_block CL(
+        .clk(CLK100MHZ),
+        .clk25(CLK25MHZ),
+        .pause_SW(switch0),
+        .reset_button(center_button),
+        .metadata_request(metadata_request),
+        .SD_CD(),
+        
+        .SD_DAT(),
+        
+        .SD_RESET(),
+        .SD_SCK(),
+        .SD_CMD(),
+        .metadata_link(metadata_link),
+        .metadata_available(metadata_available),
+        .reset(reset),
+        .pause(pause),
+        .song_time(song_time)
+    );
+
+    AV_block AV(
+        
+        
+        
+        
+    );
+
+
+
+
+
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////
 //  
     // Debounce all buttons
     assign reset_debounce = 0;
-    assign left_button_noisy = BTNL;
-    assign right_button_noisy = BTNR;
-    assign down_button_noisy = BTND;
-    assign up_button_noisy = BTNU;
+    assign switch0_noisy = SW[0];
     assign center_button_noisy = BTNC;
 
     // Assign RGB LEDs from buttons

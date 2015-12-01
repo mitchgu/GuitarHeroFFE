@@ -23,7 +23,7 @@ module SC_buffer_serializer_tb;
     );
     
     always #5 clk = !clk;
-    always #10 song_time = song_time + 1;
+    always #100 song_time = song_time + 1;
     initial begin
         // Initialize Inputs
         clk = 0;
@@ -34,7 +34,7 @@ module SC_buffer_serializer_tb;
         #100;
         
         //Stimulus
-        
+        #995
         match_trigger = 1; //match e2
         match_time[15:0] = 7;
         #10
