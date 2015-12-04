@@ -27,7 +27,6 @@ module histogram(
     input blank,
     output [9:0] vaddr,
     input [15:0] vdata,
-    input [2:0] gain,
     output reg [2:0] pixel
     );
 
@@ -40,7 +39,7 @@ module histogram(
 
     always @(posedge clk) begin
         // Pipeline stage 1
-        hheight <= vdata >> (7-gain);
+        hheight <= vdata >> 7;
         vheight <= 10'd767 - vcount;
         blank1 <= blank;
 

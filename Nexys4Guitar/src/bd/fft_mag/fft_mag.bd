@@ -200,7 +200,7 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>HAS_TLAST</spirit:name>
-            <spirit:value>0</spirit:value>
+            <spirit:value>1</spirit:value>
             <spirit:vendorExtensions>
               <bd:configElementInfos>
                 <bd:configElementInfo bd:valueSource="user_prop"/>
@@ -246,116 +246,29 @@
         </spirit:parameters>
       </spirit:busInterface>
       <spirit:busInterface>
-        <spirit:name>cfg</spirit:name>
+        <spirit:name>DATA.MAG_SQUARED</spirit:name>
+        <spirit:displayName>Data</spirit:displayName>
+        <spirit:description>Data</spirit:description>
+        <spirit:busType spirit:library="signal" spirit:name="data" spirit:vendor="xilinx.com" spirit:version="1.0"/>
+        <spirit:abstractionType spirit:library="signal" spirit:name="data_rtl" spirit:vendor="xilinx.com" spirit:version="1.0"/>
         <spirit:slave/>
-        <spirit:busType spirit:library="interface" spirit:name="axis" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:abstractionType spirit:library="interface" spirit:name="axis_rtl" spirit:vendor="xilinx.com" spirit:version="1.0"/>
+        <spirit:portMaps>
+          <spirit:portMap>
+            <spirit:logicalPort>
+              <spirit:name>DATA</spirit:name>
+            </spirit:logicalPort>
+            <spirit:physicalPort>
+              <spirit:name>mag_squared</spirit:name>
+            </spirit:physicalPort>
+          </spirit:portMap>
+        </spirit:portMaps>
         <spirit:parameters>
           <spirit:parameter>
-            <spirit:name>TDATA_NUM_BYTES</spirit:name>
-            <spirit:value>1</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>TDEST_WIDTH</spirit:name>
-            <spirit:value>0</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>TID_WIDTH</spirit:name>
-            <spirit:value>0</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>TUSER_WIDTH</spirit:name>
-            <spirit:value>0</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>HAS_TREADY</spirit:name>
-            <spirit:value>1</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>HAS_TSTRB</spirit:name>
-            <spirit:value>0</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>HAS_TKEEP</spirit:name>
-            <spirit:value>0</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>HAS_TLAST</spirit:name>
-            <spirit:value>0</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>FREQ_HZ</spirit:name>
-            <spirit:value>104000000</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>PHASE</spirit:name>
-            <spirit:value>0.000</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>CLK_DOMAIN</spirit:name>
-            <spirit:value>fft_mag_clk</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="default"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
             <spirit:name>LAYERED_METADATA</spirit:name>
-            <spirit:value>undef</spirit:value>
+            <spirit:value>xilinx.com:interface:datatypes:1.0 {DATA {datatype {name {attribs {resolve_type immediate dependency {} format string minimum {} maximum {}} value data} bitwidth {attribs {resolve_type generated dependency bitwidth format long minimum {} maximum {}} value 32} bitoffset {attribs {resolve_type immediate dependency {} format long minimum {} maximum {}} value 0} integer {signed {attribs {resolve_type generated dependency signed format bool minimum {} maximum {}} value TRUE}}}} DATA_WIDTH 32}</spirit:value>
             <spirit:vendorExtensions>
               <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="user"/>
+                <bd:configElementInfo bd:valueSource="ip_prop"/>
               </bd:configElementInfos>
             </spirit:vendorExtensions>
           </spirit:parameter>
@@ -408,86 +321,10 @@
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>ASSOCIATED_BUSIF</spirit:name>
-            <spirit:value>frame:magnitude:cfg</spirit:value>
+            <spirit:value>frame:magnitude</spirit:value>
             <spirit:vendorExtensions>
               <bd:configElementInfos>
                 <bd:configElementInfo bd:valueSource="user"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:busInterface>
-      <spirit:busInterface>
-        <spirit:name>INTR.EVENT_FRAME_STARTED</spirit:name>
-        <spirit:displayName>Interrupt</spirit:displayName>
-        <spirit:description>Interrupt</spirit:description>
-        <spirit:busType spirit:library="signal" spirit:name="interrupt" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:abstractionType spirit:library="signal" spirit:name="interrupt_rtl" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:slave/>
-        <spirit:portMaps>
-          <spirit:portMap>
-            <spirit:logicalPort>
-              <spirit:name>INTERRUPT</spirit:name>
-            </spirit:logicalPort>
-            <spirit:physicalPort>
-              <spirit:name>event_frame_started</spirit:name>
-            </spirit:physicalPort>
-          </spirit:portMap>
-        </spirit:portMaps>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>SENSITIVITY</spirit:name>
-            <spirit:value>EDGE_RISING</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="const_prop"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>PortWidth</spirit:name>
-            <spirit:value>1</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="default"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:busInterface>
-      <spirit:busInterface>
-        <spirit:name>INTR.EVENT_TLAST_UNEXPECTED</spirit:name>
-        <spirit:displayName>Interrupt</spirit:displayName>
-        <spirit:description>Interrupt</spirit:description>
-        <spirit:busType spirit:library="signal" spirit:name="interrupt" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:abstractionType spirit:library="signal" spirit:name="interrupt_rtl" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:slave/>
-        <spirit:portMaps>
-          <spirit:portMap>
-            <spirit:logicalPort>
-              <spirit:name>INTERRUPT</spirit:name>
-            </spirit:logicalPort>
-            <spirit:physicalPort>
-              <spirit:name>event_tlast_unexpected</spirit:name>
-            </spirit:physicalPort>
-          </spirit:portMap>
-        </spirit:portMaps>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>SENSITIVITY</spirit:name>
-            <spirit:value>EDGE_RISING</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="const_prop"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>PortWidth</spirit:name>
-            <spirit:value>1</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="default"/>
               </bd:configElementInfos>
             </spirit:vendorExtensions>
           </spirit:parameter>
@@ -531,120 +368,6 @@
           </spirit:parameter>
         </spirit:parameters>
       </spirit:busInterface>
-      <spirit:busInterface>
-        <spirit:name>INTR.EVENT_STATUS_CHANNEL_HALT</spirit:name>
-        <spirit:displayName>Interrupt</spirit:displayName>
-        <spirit:description>Interrupt</spirit:description>
-        <spirit:busType spirit:library="signal" spirit:name="interrupt" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:abstractionType spirit:library="signal" spirit:name="interrupt_rtl" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:slave/>
-        <spirit:portMaps>
-          <spirit:portMap>
-            <spirit:logicalPort>
-              <spirit:name>INTERRUPT</spirit:name>
-            </spirit:logicalPort>
-            <spirit:physicalPort>
-              <spirit:name>event_status_channel_halt</spirit:name>
-            </spirit:physicalPort>
-          </spirit:portMap>
-        </spirit:portMaps>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>SENSITIVITY</spirit:name>
-            <spirit:value>EDGE_RISING</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="const_prop"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>PortWidth</spirit:name>
-            <spirit:value>1</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="default"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:busInterface>
-      <spirit:busInterface>
-        <spirit:name>INTR.EVENT_DATA_IN_CHANNEL_HALT</spirit:name>
-        <spirit:displayName>Interrupt</spirit:displayName>
-        <spirit:description>Interrupt</spirit:description>
-        <spirit:busType spirit:library="signal" spirit:name="interrupt" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:abstractionType spirit:library="signal" spirit:name="interrupt_rtl" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:slave/>
-        <spirit:portMaps>
-          <spirit:portMap>
-            <spirit:logicalPort>
-              <spirit:name>INTERRUPT</spirit:name>
-            </spirit:logicalPort>
-            <spirit:physicalPort>
-              <spirit:name>event_data_in_channel_halt</spirit:name>
-            </spirit:physicalPort>
-          </spirit:portMap>
-        </spirit:portMaps>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>SENSITIVITY</spirit:name>
-            <spirit:value>EDGE_RISING</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="const_prop"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>PortWidth</spirit:name>
-            <spirit:value>1</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="default"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:busInterface>
-      <spirit:busInterface>
-        <spirit:name>INTR.EVENT_DATA_OUT_CHANNEL_HALT</spirit:name>
-        <spirit:displayName>Interrupt</spirit:displayName>
-        <spirit:description>Interrupt</spirit:description>
-        <spirit:busType spirit:library="signal" spirit:name="interrupt" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:abstractionType spirit:library="signal" spirit:name="interrupt_rtl" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:slave/>
-        <spirit:portMaps>
-          <spirit:portMap>
-            <spirit:logicalPort>
-              <spirit:name>INTERRUPT</spirit:name>
-            </spirit:logicalPort>
-            <spirit:physicalPort>
-              <spirit:name>event_data_out_channel_halt</spirit:name>
-            </spirit:physicalPort>
-          </spirit:portMap>
-        </spirit:portMaps>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>SENSITIVITY</spirit:name>
-            <spirit:value>EDGE_RISING</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="const_prop"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>PortWidth</spirit:name>
-            <spirit:value>1</spirit:value>
-            <spirit:vendorExtensions>
-              <bd:configElementInfos>
-                <bd:configElementInfo bd:valueSource="default"/>
-              </bd:configElementInfos>
-            </spirit:vendorExtensions>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:busInterface>
     </spirit:busInterfaces>
     <spirit:model>
       <spirit:views>
@@ -656,21 +379,19 @@
       </spirit:views>
       <spirit:ports>
         <spirit:port>
+          <spirit:name>mag_squared</spirit:name>
+          <spirit:wire>
+            <spirit:direction>out</spirit:direction>
+            <spirit:vector>
+              <spirit:left>31</spirit:left>
+              <spirit:right>0</spirit:right>
+            </spirit:vector>
+          </spirit:wire>
+        </spirit:port>
+        <spirit:port>
           <spirit:name>clk</spirit:name>
           <spirit:wire>
             <spirit:direction>in</spirit:direction>
-          </spirit:wire>
-        </spirit:port>
-        <spirit:port>
-          <spirit:name>event_frame_started</spirit:name>
-          <spirit:wire>
-            <spirit:direction>out</spirit:direction>
-          </spirit:wire>
-        </spirit:port>
-        <spirit:port>
-          <spirit:name>event_tlast_unexpected</spirit:name>
-          <spirit:wire>
-            <spirit:direction>out</spirit:direction>
           </spirit:wire>
         </spirit:port>
         <spirit:port>
@@ -680,19 +401,7 @@
           </spirit:wire>
         </spirit:port>
         <spirit:port>
-          <spirit:name>event_status_channel_halt</spirit:name>
-          <spirit:wire>
-            <spirit:direction>out</spirit:direction>
-          </spirit:wire>
-        </spirit:port>
-        <spirit:port>
-          <spirit:name>event_data_in_channel_halt</spirit:name>
-          <spirit:wire>
-            <spirit:direction>out</spirit:direction>
-          </spirit:wire>
-        </spirit:port>
-        <spirit:port>
-          <spirit:name>event_data_out_channel_halt</spirit:name>
+          <spirit:name>mag_squared_valid</spirit:name>
           <spirit:wire>
             <spirit:direction>out</spirit:direction>
           </spirit:wire>
@@ -708,56 +417,11 @@
     <spirit:version>1.00.a</spirit:version>
     <spirit:componentInstances>
       <spirit:componentInstance>
-        <spirit:instanceName>xlslice_0</spirit:instanceName>
-        <spirit:componentRef spirit:library="ip" spirit:name="xlslice" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:configurableElementValues>
-          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlslice_0_0</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="DOUT_WIDTH">16</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="DIN_TO">0</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="DIN_FROM">15</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="DIN_WIDTH">64</spirit:configurableElementValue>
-        </spirit:configurableElementValues>
-      </spirit:componentInstance>
-      <spirit:componentInstance>
-        <spirit:instanceName>xlslice_1</spirit:instanceName>
-        <spirit:componentRef spirit:library="ip" spirit:name="xlslice" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:configurableElementValues>
-          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlslice_1_0</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="DOUT_WIDTH">16</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="DIN_TO">32</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="DIN_FROM">47</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="DIN_WIDTH">64</spirit:configurableElementValue>
-        </spirit:configurableElementValues>
-      </spirit:componentInstance>
-      <spirit:componentInstance>
-        <spirit:instanceName>xlconstant_0</spirit:instanceName>
-        <spirit:componentRef spirit:library="ip" spirit:name="xlconstant" spirit:vendor="xilinx.com" spirit:version="1.1"/>
-        <spirit:configurableElementValues>
-          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlconstant_0_0</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="CONST_VAL">0</spirit:configurableElementValue>
-        </spirit:configurableElementValues>
-      </spirit:componentInstance>
-      <spirit:componentInstance>
-        <spirit:instanceName>xlconstant_1</spirit:instanceName>
-        <spirit:componentRef spirit:library="ip" spirit:name="xlconstant" spirit:vendor="xilinx.com" spirit:version="1.1"/>
-        <spirit:configurableElementValues>
-          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlconstant_0_1</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="CONST_VAL">1</spirit:configurableElementValue>
-        </spirit:configurableElementValues>
-      </spirit:componentInstance>
-      <spirit:componentInstance>
-        <spirit:instanceName>axis_register_slice_1</spirit:instanceName>
-        <spirit:componentRef spirit:library="ip" spirit:name="axis_register_slice" spirit:vendor="xilinx.com" spirit:version="1.1"/>
-        <spirit:configurableElementValues>
-          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_axis_register_slice_1_0</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="HAS_TREADY">0</spirit:configurableElementValue>
-        </spirit:configurableElementValues>
-      </spirit:componentInstance>
-      <spirit:componentInstance>
         <spirit:instanceName>axis_register_slice_2</spirit:instanceName>
         <spirit:componentRef spirit:library="ip" spirit:name="axis_register_slice" spirit:vendor="xilinx.com" spirit:version="1.1"/>
         <spirit:configurableElementValues>
           <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_axis_register_slice_2_0</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="TUSER_WIDTH">12</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="HAS_TREADY">0</spirit:configurableElementValue>
         </spirit:configurableElementValues>
       </spirit:componentInstance>
@@ -768,9 +432,9 @@
           <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_c_addsub_0_0</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="Out_Width">32</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="Latency_Configuration">Manual</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="Latency">1</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="Latency">0</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="B_Value">00000000000000000000000000000000</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="CE">true</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="CE">false</spirit:configurableElementValue>
         </spirit:configurableElementValues>
       </spirit:componentInstance>
       <spirit:componentInstance>
@@ -786,6 +450,8 @@
           <spirit:configurableElementValue spirit:referenceId="Coarse_Rotation">false</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="cartesian_has_tuser">true</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="cartesian_tuser_width">12</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="cartesian_has_tlast">true</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="out_tlast_behv">Pass_Cartesian_TLAST</spirit:configurableElementValue>
         </spirit:configurableElementValues>
       </spirit:componentInstance>
       <spirit:componentInstance>
@@ -824,22 +490,59 @@
           <spirit:configurableElementValue spirit:referenceId="number_of_stages_using_block_ram_for_data_and_phase_factors">5</spirit:configurableElementValue>
         </spirit:configurableElementValues>
       </spirit:componentInstance>
+      <spirit:componentInstance>
+        <spirit:instanceName>xlconstant_0</spirit:instanceName>
+        <spirit:componentRef spirit:library="ip" spirit:name="xlconstant" spirit:vendor="xilinx.com" spirit:version="1.1"/>
+        <spirit:configurableElementValues>
+          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlconstant_0_0</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="CONST_VAL">0</spirit:configurableElementValue>
+        </spirit:configurableElementValues>
+      </spirit:componentInstance>
+      <spirit:componentInstance>
+        <spirit:instanceName>xlconstant_1</spirit:instanceName>
+        <spirit:componentRef spirit:library="ip" spirit:name="xlconstant" spirit:vendor="xilinx.com" spirit:version="1.1"/>
+        <spirit:configurableElementValues>
+          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlconstant_0_1</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="CONST_VAL">1</spirit:configurableElementValue>
+        </spirit:configurableElementValues>
+      </spirit:componentInstance>
+      <spirit:componentInstance>
+        <spirit:instanceName>xlslice_0</spirit:instanceName>
+        <spirit:componentRef spirit:library="ip" spirit:name="xlslice" spirit:vendor="xilinx.com" spirit:version="1.0"/>
+        <spirit:configurableElementValues>
+          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlslice_0_0</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="DOUT_WIDTH">16</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="DIN_TO">0</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="DIN_FROM">15</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="DIN_WIDTH">64</spirit:configurableElementValue>
+        </spirit:configurableElementValues>
+      </spirit:componentInstance>
+      <spirit:componentInstance>
+        <spirit:instanceName>xlslice_1</spirit:instanceName>
+        <spirit:componentRef spirit:library="ip" spirit:name="xlslice" spirit:vendor="xilinx.com" spirit:version="1.0"/>
+        <spirit:configurableElementValues>
+          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlslice_1_0</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="DOUT_WIDTH">16</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="DIN_TO">32</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="DIN_FROM">47</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="DIN_WIDTH">64</spirit:configurableElementValue>
+        </spirit:configurableElementValues>
+      </spirit:componentInstance>
+      <spirit:componentInstance>
+        <spirit:instanceName>xlconstant_2</spirit:instanceName>
+        <spirit:componentRef spirit:library="ip" spirit:name="xlconstant" spirit:vendor="xilinx.com" spirit:version="1.1"/>
+        <spirit:configurableElementValues>
+          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlconstant_2_0</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="CONST_WIDTH">8</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="CONST_VAL">0</spirit:configurableElementValue>
+        </spirit:configurableElementValues>
+      </spirit:componentInstance>
     </spirit:componentInstances>
     <spirit:interconnections>
-      <spirit:interconnection>
-        <spirit:name>axis_register_slice_1_M_AXIS</spirit:name>
-        <spirit:activeInterface spirit:busRef="M_AXIS" spirit:componentRef="axis_register_slice_1"/>
-        <spirit:activeInterface spirit:busRef="S_AXIS_CARTESIAN" spirit:componentRef="cordic_0"/>
-      </spirit:interconnection>
       <spirit:interconnection>
         <spirit:name>xfft_0_M_AXIS_DATA</spirit:name>
         <spirit:activeInterface spirit:busRef="S_AXIS" spirit:componentRef="axis_register_slice_2"/>
         <spirit:activeInterface spirit:busRef="M_AXIS_DATA" spirit:componentRef="xfft_0"/>
-      </spirit:interconnection>
-      <spirit:interconnection>
-        <spirit:name>axis_register_slice_2_M_AXIS</spirit:name>
-        <spirit:activeInterface spirit:busRef="M_AXIS" spirit:componentRef="axis_register_slice_2"/>
-        <spirit:activeInterface spirit:busRef="S_AXIS" spirit:componentRef="axis_register_slice_1"/>
       </spirit:interconnection>
     </spirit:interconnections>
     <spirit:adHocConnections>
@@ -874,14 +577,13 @@
       <spirit:adHocConnection>
         <spirit:name>c_addsub_0_S</spirit:name>
         <spirit:internalPortReference spirit:componentRef="c_addsub_0" spirit:portRef="S"/>
+        <spirit:externalPortReference spirit:portRef="mag_squared"/>
         <spirit:internalPortReference spirit:componentRef="cordic_0" spirit:portRef="s_axis_cartesian_tdata"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>clk_1</spirit:name>
         <spirit:externalPortReference spirit:portRef="clk"/>
-        <spirit:internalPortReference spirit:componentRef="axis_register_slice_1" spirit:portRef="aclk"/>
         <spirit:internalPortReference spirit:componentRef="axis_register_slice_2" spirit:portRef="aclk"/>
-        <spirit:internalPortReference spirit:componentRef="c_addsub_0" spirit:portRef="CLK"/>
         <spirit:internalPortReference spirit:componentRef="cordic_0" spirit:portRef="aclk"/>
         <spirit:internalPortReference spirit:componentRef="mult_gen_0" spirit:portRef="CLK"/>
         <spirit:internalPortReference spirit:componentRef="mult_gen_1" spirit:portRef="CLK"/>
@@ -890,18 +592,8 @@
       <spirit:adHocConnection>
         <spirit:name>xlconstant_0_dout</spirit:name>
         <spirit:internalPortReference spirit:componentRef="xlconstant_0" spirit:portRef="dout"/>
-        <spirit:internalPortReference spirit:componentRef="axis_register_slice_1" spirit:portRef="aresetn"/>
         <spirit:internalPortReference spirit:componentRef="axis_register_slice_2" spirit:portRef="aresetn"/>
-      </spirit:adHocConnection>
-      <spirit:adHocConnection>
-        <spirit:name>xfft_0_event_frame_started</spirit:name>
-        <spirit:internalPortReference spirit:componentRef="xfft_0" spirit:portRef="event_frame_started"/>
-        <spirit:externalPortReference spirit:portRef="event_frame_started"/>
-      </spirit:adHocConnection>
-      <spirit:adHocConnection>
-        <spirit:name>xfft_0_event_tlast_unexpected</spirit:name>
-        <spirit:internalPortReference spirit:componentRef="xfft_0" spirit:portRef="event_tlast_unexpected"/>
-        <spirit:externalPortReference spirit:portRef="event_tlast_unexpected"/>
+        <spirit:internalPortReference spirit:componentRef="xfft_0" spirit:portRef="s_axis_config_tvalid"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>xfft_0_event_tlast_missing</spirit:name>
@@ -909,24 +601,30 @@
         <spirit:externalPortReference spirit:portRef="event_tlast_missing"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
-        <spirit:name>xfft_0_event_status_channel_halt</spirit:name>
-        <spirit:internalPortReference spirit:componentRef="xfft_0" spirit:portRef="event_status_channel_halt"/>
-        <spirit:externalPortReference spirit:portRef="event_status_channel_halt"/>
-      </spirit:adHocConnection>
-      <spirit:adHocConnection>
-        <spirit:name>xfft_0_event_data_in_channel_halt</spirit:name>
-        <spirit:internalPortReference spirit:componentRef="xfft_0" spirit:portRef="event_data_in_channel_halt"/>
-        <spirit:externalPortReference spirit:portRef="event_data_in_channel_halt"/>
-      </spirit:adHocConnection>
-      <spirit:adHocConnection>
-        <spirit:name>xfft_0_event_data_out_channel_halt</spirit:name>
-        <spirit:internalPortReference spirit:componentRef="xfft_0" spirit:portRef="event_data_out_channel_halt"/>
-        <spirit:externalPortReference spirit:portRef="event_data_out_channel_halt"/>
-      </spirit:adHocConnection>
-      <spirit:adHocConnection>
         <spirit:name>xlconstant_1_dout</spirit:name>
         <spirit:internalPortReference spirit:componentRef="xlconstant_1" spirit:portRef="dout"/>
         <spirit:internalPortReference spirit:componentRef="xfft_0" spirit:portRef="m_axis_data_tready"/>
+      </spirit:adHocConnection>
+      <spirit:adHocConnection>
+        <spirit:name>xlconstant_2_dout</spirit:name>
+        <spirit:internalPortReference spirit:componentRef="xlconstant_2" spirit:portRef="dout"/>
+        <spirit:internalPortReference spirit:componentRef="xfft_0" spirit:portRef="s_axis_config_tdata"/>
+      </spirit:adHocConnection>
+      <spirit:adHocConnection>
+        <spirit:name>axis_register_slice_2_m_axis_tvalid</spirit:name>
+        <spirit:internalPortReference spirit:componentRef="axis_register_slice_2" spirit:portRef="m_axis_tvalid"/>
+        <spirit:externalPortReference spirit:portRef="mag_squared_valid"/>
+        <spirit:internalPortReference spirit:componentRef="cordic_0" spirit:portRef="s_axis_cartesian_tvalid"/>
+      </spirit:adHocConnection>
+      <spirit:adHocConnection>
+        <spirit:name>axis_register_slice_2_m_axis_tuser</spirit:name>
+        <spirit:internalPortReference spirit:componentRef="axis_register_slice_2" spirit:portRef="m_axis_tuser"/>
+        <spirit:internalPortReference spirit:componentRef="cordic_0" spirit:portRef="s_axis_cartesian_tuser"/>
+      </spirit:adHocConnection>
+      <spirit:adHocConnection>
+        <spirit:name>axis_register_slice_2_m_axis_tlast</spirit:name>
+        <spirit:internalPortReference spirit:componentRef="axis_register_slice_2" spirit:portRef="m_axis_tlast"/>
+        <spirit:internalPortReference spirit:componentRef="cordic_0" spirit:portRef="s_axis_cartesian_tlast"/>
       </spirit:adHocConnection>
     </spirit:adHocConnections>
     <spirit:hierConnections>
@@ -935,9 +633,6 @@
       </spirit:hierConnection>
       <spirit:hierConnection spirit:interfaceRef="magnitude/cordic_0_M_AXIS_DOUT">
         <spirit:activeInterface spirit:busRef="M_AXIS_DOUT" spirit:componentRef="cordic_0"/>
-      </spirit:hierConnection>
-      <spirit:hierConnection spirit:interfaceRef="cfg/CFG_1">
-        <spirit:activeInterface spirit:busRef="S_AXIS_CONFIG" spirit:componentRef="xfft_0"/>
       </spirit:hierConnection>
     </spirit:hierConnections>
   </spirit:design>

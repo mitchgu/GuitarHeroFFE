@@ -24,7 +24,7 @@ module histogram_saver(
     input clk,
     input reset,
     input start,
-    input [3:0] slot,
+    input [6:0] slot,
     output reg [9:0] vaddr,
     input [15:0] vdata,
     input sd_ready,
