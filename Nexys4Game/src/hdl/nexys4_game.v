@@ -37,6 +37,9 @@ module nexys4_game(
     wire CLK25MHZ;
     clock_4divider clk_divider(.clk(CLK100MHZ),.clk_div(CLK25MHZ));
 
+    wire CLK65MHZ;
+    clk_wiz_65 clk_65(.clk_in(CLK100MHZ),.clk_out(CLK_65MHZ));
+
 //  INSTANTIATE SEVEN SEGMENT DISPLAY
     wire [31:0] seg_data;
     wire [6:0] segments;
@@ -108,7 +111,13 @@ module nexys4_game(
     );
 
     AV_block AV(
-        
+        .clk(CLK100MHZ),
+        .clk65(CLK65MHZ),
+        .VGA_R(VGA_R),
+        .VGA_G(VGA_G),
+        .VGA_B(VGA_B),
+        .VGA_HS(VGA_HS),
+        .VGA_VS(VGA_VS)
         
         
         
