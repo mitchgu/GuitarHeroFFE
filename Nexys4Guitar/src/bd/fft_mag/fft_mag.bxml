@@ -2,9 +2,9 @@
 <Root MajorVersion="0" MinorVersion="33">
   <CompositeFile CompositeFileTopName="fft_mag" CanBeSetAsTop="false" CanDisplayChildGraph="true">
     <Description>Composite Fileset</Description>
-    <Generation Name="SYNTHESIS" State="GENERATED" Timestamp="1449185255"/>
-    <Generation Name="IMPLEMENTATION" State="GENERATED" Timestamp="1449185255"/>
-    <Generation Name="SIMULATION" State="GENERATED" Timestamp="1449185255"/>
+    <Generation Name="SYNTHESIS" State="GENERATED" Timestamp="1449273599"/>
+    <Generation Name="IMPLEMENTATION" State="GENERATED" Timestamp="1449273599"/>
+    <Generation Name="SIMULATION" State="GENERATED" Timestamp="1449273599"/>
     <FileCollection Name="SOURCES" Type="SOURCES">
       <File Name="ip\fft_mag_xfft_0_0\fft_mag_xfft_0_0.xci" Type="IP">
         <Instance HierarchyPath="xfft_0"/>
@@ -86,16 +86,24 @@
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="SIMULATION"/>
       </File>
-      <File Name="hdl\fft_mag.v" Type="Verilog">
-        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="false" IsStatusTracked="false"/>
+      <File Name="ip\fft_mag_xlconstant_2_0_1\fft_mag_xlconstant_2_0.xci" Type="IP">
+        <Instance HierarchyPath="xlconstant_2"/>
+        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
         <Library Name="xil_defaultlib"/>
         <UsedIn Val="SYNTHESIS"/>
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="SIMULATION"/>
       </File>
-      <File Name="ip\fft_mag_xlconstant_2_0_1\fft_mag_xlconstant_2_0.xci" Type="IP">
-        <Instance HierarchyPath="xlconstant_2"/>
+      <File Name="ip\fft_mag_axis_register_slice_2_1\fft_mag_axis_register_slice_2_1.xci" Type="IP">
+        <Instance HierarchyPath="axis_register_slice_3"/>
         <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
+        <Library Name="xil_defaultlib"/>
+        <UsedIn Val="SYNTHESIS"/>
+        <UsedIn Val="IMPLEMENTATION"/>
+        <UsedIn Val="SIMULATION"/>
+      </File>
+      <File Name="hdl\fft_mag.v" Type="Verilog">
+        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="false" IsStatusTracked="false"/>
         <Library Name="xil_defaultlib"/>
         <UsedIn Val="SYNTHESIS"/>
         <UsedIn Val="IMPLEMENTATION"/>

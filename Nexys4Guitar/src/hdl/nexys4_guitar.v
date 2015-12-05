@@ -154,10 +154,12 @@ module nexys4_guitar (
         .frame_tvalid(frame_tvalid)
     );
 
-    wire [31:0] mag_squared;
     wire [23:0] magnitude_tdata;
     wire [11:0] magnitude_tuser;
-    wire mag_squared_valid, magnitude_tlast, magnitude_tvalid;
+    wire magnitude_tlast, magnitude_tvalid;
+    wire [31:0] mag_squared_tdata;
+    wire [11:0] mag_squared_tuser;
+    wire mag_squared_tlast, mag_squared_tvalid;
     fft_mag fft_mag_i(
         .clk(clk_104mhz),
         .event_tlast_missing(last_missing),
@@ -165,48 +167,74 @@ module nexys4_guitar (
         .frame_tlast(frame_tlast),
         .frame_tready(frame_tready),
         .frame_tvalid(frame_tvalid),
-        .mag_squared(mag_squared),
-        .mag_squared_valid(mag_squared_valid),
+        .mag_squared_tdata(mag_squared_tdata),
+        .mag_squared_tlast(mag_squared_tlast),
+        .mag_squared_tuser(mag_squared_tuser),
+        .mag_squared_tvalid(mag_squared_tvalid),
         .magnitude_tdata(magnitude_tdata),
         .magnitude_tlast(magnitude_tlast),
         .magnitude_tuser(magnitude_tuser),
         .magnitude_tvalid(magnitude_tvalid));
+
+    wire in_range;
+    assign in_range = ~|magnitude_tuser[11:10];
+
+    wire [20:0] norm_tdata;
+    wire norm_tvalid;
+    calculate_norm calc_norm(
+        .clk(clk_104mhz),
+        .mag_squared_tdata(mag_squared_tdata),
+        .mag_squared_tlast(mag_squared_tlast),
+        .mag_squared_tuser(mag_squared_tuser),
+        .mag_squared_tvalid(mag_squared_tvalid),
+        .norm_tdata(norm_tdata),
+        .norm_tvalid(norm_tvalid)
+        );
 
     // INSTANTIATE HISTOGRAM BLOCK RAM 
     // This 16x1024 bram stores the histogram data.
     // The write port is written by process_fft.
     // The read port is read by the video outputter or the SD care saver
     // Assign histogram bram read address to histogram module unless saving
-    wire [9:0] saddr;
-    wire [15:0] sdata;
     wire [9:0] haddr;
     wire [15:0] hdata;
-    wire swe;
-    assign saddr = magnitude_tuser[9:0];
-    assign sdata = magnitude_tdata[15:0];
-    assign swe = ~|magnitude_tuser[11:10]&magnitude_tvalid;
     bram_fft bram2 (
         .clka(clk_104mhz), // input wire clka
-        .wea(swe),         // input wire [0 : 0] wea
-        .addra(saddr),     // input wire [9 : 0] addra
-        .dina(sdata),      // input wire [15 : 0] dina
+        .wea(in_range & magnitude_tvalid),  // input wire [0 : 0] wea
+        .addra(magnitude_tuser[9:0]),     // input wire [9 : 0] addra
+        .dina(magnitude_tdata[15:0]),      // input wire [15 : 0] dina
         .clkb(clk_65mhz),  // input wire clkb
         .addrb(haddr),     // input wire [9 : 0] addrb
         .doutb(hdata)      // output wire [15 : 0] doutb
     );
+    wire [41:0] dot_product;
+    wire [31:0] normalizer;
+    wire dot_product_valid;
+    wire [76:0] debug;
+    correlator correlator_00(
+        .clk(clk_104mhz),
+        .magnitude_tdata(magnitude_tdata[15:0]),
+        .magnitude_tlast(magnitude_tlast),
+        .magnitude_tvalid(magnitude_tvalid),
+        .magnitude_tuser(magnitude_tuser),
+        .norm_tdata(norm_tdata),
+        .norm_tvalid(norm_tvalid),
+        .dot_product(dot_product),
+        .normalizer(normalizer),
+        .dot_product_valid(dot_product_valid),
+        .debug(debug)
+        );
 
-    wire hwe_safe;
-    assign hwe_safe = (saving) ? 0 : swe;
-    wire [9:0] save_addr;
-    wire [15:0] save_data;
-    bram_fft bram3 (
-        .clka(clk_104mhz), // input wire clka
-        .wea(hwe_safe),         // input wire [0 : 0] wea
-        .addra(haddr),     // input wire [9 : 0] addra
-        .dina(hdata),      // input wire [15 : 0] dina
-        .clkb(clk_25mhz),  // input wire clkb
-        .addrb(save_addr),     // input wire [9 : 0] addrb
-        .doutb(save_data)      // output wire [15 : 0] doutb
+    wire div_valid;
+    wire [79:0] div_raw;
+    correlate_div corrediv (
+      .aclk(clk_104mhz),                                      // input wire aclk
+      .s_axis_divisor_tvalid(dot_product_valid),    // input wire s_axis_divisor_tvalid
+      .s_axis_divisor_tdata(normalizer),      // input wire [31 : 0] s_axis_divisor_tdata
+      .s_axis_dividend_tvalid(dot_product_valid),  // input wire s_axis_dividend_tvalid
+      .s_axis_dividend_tdata({6'h00,dot_product}),    // input wire [47 : 0] s_axis_dividend_tdata
+      .m_axis_dout_tvalid(div_valid),          // output wire m_axis_dout_tvalid
+      .m_axis_dout_tdata(div_raw)            // output wire [79 : 0] m_axis_dout_tdata
     );
 
     // INSTANTIATE XVGA SIGNALS
@@ -220,6 +248,17 @@ module nexys4_guitar (
         .vsync(vsync),
         .hsync(hsync),
         .blank(blank));
+
+    wire [2:0] correlate_pixel;
+    process_correlation pcorrelate(
+        .clk(clk_104mhz),
+        .vclk(clk_65mhz),
+        .hcount(hcount),
+        .vcount(vcount),
+        .correlation(div_raw[41:32]),
+        .correlation_valid(div_valid),
+        .pixel(correlate_pixel)
+    );
 
     // INSTANTIATE HISTOGRAM VIDEO
     wire [2:0] hist_pixel;
@@ -268,6 +307,19 @@ module nexys4_guitar (
     wire save_start;
     wire saver_reset, saving;
     wire [6:0] save_slot;
+    wire [9:0] save_addr;
+    wire [15:0] save_data;
+
+    bram_fft bram3 (
+        .clka(clk_104mhz), // input wire clka
+        .wea(in_range & magnitude_tvalid & ~saving),// input wire [0 : 0] wea
+        .addra(magnitude_tuser[9:0]),     // input wire [9 : 0] addra
+        .dina(magnitude_tdata[15:0]),      // input wire [15 : 0] dina
+        .clkb(clk_25mhz),  // input wire clkb
+        .addrb(save_addr),     // input wire [9 : 0] addrb
+        .doutb(save_data)      // output wire [15 : 0] doutb
+    );
+
     histogram_saver hsaver(
         .clk(clk_25mhz),
         .reset(saver_reset),
@@ -350,7 +402,7 @@ module nexys4_guitar (
         end
     endgenerate
     synchronize s104_0(clk_104mhz, SW[0], SWS[0]);
-
+/*
     ila_0 lifesaver (
         .clk(clk_104mhz), // input wire clk
         .probe0(sample_reg[11:0]), // input wire [11:0]  probe0  
@@ -369,7 +421,32 @@ module nexys4_guitar (
         .probe13(magnitude_tlast), // input wire [0:0]  probe13 
         .probe14(swe), // input wire [0:0]  probe14 
         .probe15(up_button) // input wire [0:0]  probe15
-);
+    ); */
+    ila_0 lifesaver (
+        .clk(clk_104mhz), // input wire clk
+        .probe0(magnitude_tdata[15:0]), // input wire [11:0]  probe0  
+        .probe1(magnitude_tuser), // input wire [15:0]  probe1 
+        .probe2(magnitude_tvalid), // input wire [15:0]  probe2 
+        .probe3(mag_squared_tdata), // input wire [11:0]  probe3 
+        .probe4(mag_squared_tvalid), // input wire [15:0]  probe4 
+        .probe5(norm_tdata), // input wire [11:0]  probe5 
+        .probe6(norm_tvalid), // input wire [31:0]  probe6 
+        .probe7(dot_product), // input wire [0:0]  probe7 
+        .probe8(normalizer), // input wire [0:0]  probe8 
+        .probe9(dot_product_valid), // input wire [0:0]  probe9 
+        .probe10(div_raw[41:32]), // input wire [0:0]  probe10 
+        .probe11(div_valid), // input wire [0:0]  probe11 
+        .probe12(mag_squared_tuser), // input wire [0:0]  probe12 
+        .probe13(magnitude_tlast), // input wire [0:0]  probe13 
+        .probe14(mag_squared_tlast), // input wire [0:0]  probe14 
+        .probe15(in_range), // input wire [0:0]  probe15
+        .probe16(debug[76:61]),
+        .probe17(debug[60:45]),
+        .probe18(debug[44:3]),
+        .probe19(debug[2]),
+        .probe20(debug[1]),
+        .probe21(debug[0])
+    );
 
 //////////////////////////////////////////////////////////////////////////////////
 //  
@@ -391,15 +468,17 @@ module nexys4_guitar (
     reg [1:0] hsync_stage;
     reg [1:0] vsync_stage;
     reg hsync_out, vsync_out;
+    reg [2:0] correlate_pixel_stage;
     always @(posedge clk_65mhz) begin
         hsync_stage <= {hsync_stage[0],hsync};
         vsync_stage <= {vsync_stage[0],vsync};
         hsync_out <= hsync_stage[1];
         vsync_out <= vsync_stage[1];
+        correlate_pixel_stage <= correlate_pixel;
     end
-    assign VGA_R = {4{hist_pixel[0]}};
-    assign VGA_G = {4{hist_pixel[1]}};
-    assign VGA_B = {4{hist_pixel[2]}};
+    assign VGA_R = {4{hist_pixel[0] | correlate_pixel_stage[0]}};
+    assign VGA_G = {4{hist_pixel[1] | correlate_pixel_stage[1]}};
+    assign VGA_B = {4{hist_pixel[2] | correlate_pixel_stage[2]}};
     assign VGA_HS = hsync_out;
     assign VGA_VS = vsync_out;
 
