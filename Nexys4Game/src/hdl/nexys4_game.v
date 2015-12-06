@@ -75,6 +75,12 @@ module nexys4_game(
     wire [37*16-1:0] metadata_link;
     wire [36:0] metadata_request, metadata_available;
     
+    
+    wire [31:0] score;
+    wire [29:0] fret;
+    wire [15:0] fret_time;
+    wire [5:0] fret_en;
+    
     SC_block SC(
         .clk(CLK100MHZ),
         .pause(pause),
@@ -84,10 +90,10 @@ module nexys4_game(
         .metadata_available(metadata_available),
         
         .metadata_request(metadata_request),
-        .score(),
-        .fret(),
-        .note_time(),
-        .en()
+        .score(score),
+        .fret(fret),
+        .fret_time(fret_time),
+        .fret_en(fret_en)
     );
 
     CL_block CL(
@@ -113,13 +119,16 @@ module nexys4_game(
     AV_block AV(
         .clk(CLK100MHZ),
         .clk65(CLK65MHZ),
+        .score(score),
+        .fret(fret),
+        .fret_time(fret_time),
+        .fret_en(fret_en),
+        
         .VGA_R(VGA_R),
         .VGA_G(VGA_G),
         .VGA_B(VGA_B),
         .VGA_HS(VGA_HS),
         .VGA_VS(VGA_VS)
-        
-        
         
     );
 
