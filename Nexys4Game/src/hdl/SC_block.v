@@ -8,10 +8,9 @@ module SC_block(
     
     output [36:0] metadata_request, //request line to metadata table
     output [31:0] score, //score output to the AV block ARBITRARY WIDTH
-    output fret,
-    output note_time,
-    output en //FIXME
-    
+    output [29:0] fret, //fret numbers for matched notes for string gr.
+    output [15:0] fret_time,
+    output [5:0] fret_en //enable signal for a string gr. module to check for a matched note    
     
     );
     
@@ -38,7 +37,10 @@ module SC_block(
         .match_time(match_time),
         
         .match_en(match_en),
-        .match_dt(match_dt)
+        .match_dt(match_dt),
+        .fret_en(fret_en),
+        .fret(fret),
+        .fret_time(fret_time)
     );
     
     SC_score score (

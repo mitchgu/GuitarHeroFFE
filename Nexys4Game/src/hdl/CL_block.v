@@ -73,7 +73,7 @@ module CL_block(
     reg [1:0] test_state = STATE_INIT; 
     //assign LED = {state, ready, test_state, bytes[15:8]};  
     
-    sd_controller sd_controller( //these connections are not in io order
+    sd_controller sd( //these connections are not in io order
         .cs(spiCS), // Connect to SD_DAT[3].
         .mosi(spiMosi), // Connect to SD_CMD.
         .miso(spiMiso), // Connect to SD_DAT[0].
@@ -105,6 +105,8 @@ module CL_block(
     reg [1:0] bytes_read = 0;
     
     always @(posedge clk25) begin
+    
+    /* SD card metadata loading
         if(!data_loaded) begin //need to load metadata
             if(ready) begin //begin a read
                 rd <= 1;
@@ -143,6 +145,9 @@ module CL_block(
             //
         end
         adr <= next_adr;
+        
+    */
+    
     end
     
     //

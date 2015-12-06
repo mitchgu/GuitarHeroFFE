@@ -14,7 +14,6 @@ module AV_integrator(
     
     output reg [11:0] pixel
     
-    
     );
     
     always @(posedge clk65) begin //maybe make this assign and wires instead?

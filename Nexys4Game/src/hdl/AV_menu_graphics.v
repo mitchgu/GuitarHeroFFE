@@ -4,7 +4,7 @@ module AV_menu_graphics(
     input [10:0] hcount,
     input [9:0] vcount,
         
-    output [12:0] menu_pixel
+    output reg [12:0] menu_pixel
     );
     
     localparam WIDTH = 800;
@@ -17,8 +17,8 @@ module AV_menu_graphics(
     always @(posedge clk65) begin
         if( hcount >= startX && hcount < (startX + WIDTH) &&
             vcount >= startY && vcount < (startY + HEIGHT))
-            menu_pixel = {pause, COLOR};
-        else menu_pixel = 0;
+            menu_pixel <= {pause, COLOR};
+        else menu_pixel <= 0;
     
     end
     

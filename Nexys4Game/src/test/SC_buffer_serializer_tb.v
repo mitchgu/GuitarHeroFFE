@@ -11,6 +11,9 @@ module SC_buffer_serializer_tb;
     // Outputs
     wire match_en;
     wire [15:0] match_dt;
+    wire [29:0] fret;
+    wire [5:0] fret_en;
+    wire [15:0] fret_time;
     
     // Instantiate the Unit Under Test (UUT)
     SC_buffer_serializer uut (
@@ -19,7 +22,10 @@ module SC_buffer_serializer_tb;
         .match_trigger(match_trigger),
         .match_time(match_time),
         .match_en(match_en),
-        .match_dt(match_dt)
+        .match_dt(match_dt),
+        .fret_en(fret_en),
+        .fret(fret),
+        .fret_time(fret_time)
     );
     
     always #5 clk = !clk;
@@ -37,6 +43,13 @@ module SC_buffer_serializer_tb;
         #995
         match_trigger = 1; //match e2
         match_time[15:0] = 7;
+        #10
+        match_trigger = 0;
+        
+        
+        #995
+        match_trigger[12] = 1; //match e2
+        match_time[207:192] = 30;
         #10
         match_trigger = 0;
         
