@@ -30,7 +30,7 @@ module correlator(
     output reg [41:0] dot_product,
     output reg [31:0] normalizer,
     output reg dot_product_valid,
-    output [76:0] debug
+    output [82:0] debug
     );
 
     parameter REF_MIF = "../mif/00.mif";

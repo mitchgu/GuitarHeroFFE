@@ -207,10 +207,6 @@ module nexys4_guitar (
         .addrb(haddr),     // input wire [9 : 0] addrb
         .doutb(hdata)      // output wire [15 : 0] doutb
     );
-    wire [41:0] dot_product [0:47];
-    wire [31:0] normalizer [0:47];
-    wire [47:0] dot_product_valid;
-    wire [76:0] debug [0:47];
 /*
     correlator correlator_00(
         .clk(clk_104mhz),
@@ -340,6 +336,10 @@ module nexys4_guitar (
     defparam correlator_gen[47].c.REF_MIF = "../mif/47.mif";
     defparam correlator_gen[47].c.NORM_REF = 21'b0000100011101110110010;
 
+    wire [41:0] dot_product [0:47];
+    wire [31:0] normalizer [0:47];
+    wire [47:0] dot_product_valid;
+    wire [82:0] debug [0:47];
     genvar a;
     generate for(a=0; a<48; a=a+1)
         begin : correlator_gen
@@ -728,9 +728,9 @@ module nexys4_guitar (
         .probe13(magnitude_tlast), // input wire [0:0]  probe13 
         .probe14(mag_squared_tlast), // input wire [0:0]  probe14 
         .probe15(in_range), // input wire [0:0]  probe15
-        .probe16(debug[47][76:61]),
-        .probe17(debug[47][60:45]),
-        .probe18(debug[47][44:3]),
+        .probe16(debug[47][82:67]),
+        .probe17(debug[47][66:51]),
+        .probe18(debug[47][50:3]),
         .probe19(debug[47][2]),
         .probe20(debug[47][1]),
         .probe21(debug[47][0])
@@ -764,7 +764,9 @@ module nexys4_guitar (
         hsync_out <= hsync_stage[1];
         vsync_out <= vsync_stage[1];
         vcount_stage <= vcount;
-        correlate_pixel_out <= (vcount_stage < 48) ? correlate_pixel[vcount_stage[5:0]]: 3'b000;
+        if (vcount_stage < 64) correlate_pixel_out <= correlate_pixel[SW[5:0]];
+        else if (vcount_stage < 128) correlate_pixel_out <= correlate_pixel[SW[11:6]];
+        else correlate_pixel_out <= 3'b000;
     end
     assign VGA_R = {4{hist_pixel[0] | correlate_pixel_out[0]}};
     assign VGA_G = {4{hist_pixel[1] | correlate_pixel_out[1]}};

@@ -52,7 +52,7 @@ module process_correlation(
 
     always @(posedge clk) begin
         if (~fifo_full & correlation_valid) begin
-            filter_correlation <= (correlation>>2) + filter_correlation - (filter_correlation>>2);
+            filter_correlation <= (correlation>>5) + filter_correlation - (filter_correlation>>5);
             write_new_correlation <= 1;
         end
         else write_new_correlation <= 0;
