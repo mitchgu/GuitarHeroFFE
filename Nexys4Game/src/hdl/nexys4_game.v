@@ -37,8 +37,8 @@ module nexys4_game(
     wire CLK25MHZ;
     clock_4divider clk_divider(.clk(CLK100MHZ),.clk_div(CLK25MHZ));
 
-    wire CLK65MHZ;
-    clk_wiz_65 clk_65(.clk_in(CLK100MHZ),.clk_out(CLK_65MHZ));
+    wire CLK65MHZ, CLK130MHZ;
+    clk_wiz_65 clk_gen(.clk_in(CLK100MHZ),.clk_out(CLK65MHZ),.clk_out2(CLK130MHZ));
 
 //  INSTANTIATE SEVEN SEGMENT DISPLAY
     wire [31:0] seg_data;
@@ -52,12 +52,20 @@ module nexys4_game(
 
     // Debounce pause switch
     wire switch0_noisy, switch0;
-    debounce down_button_debouncer(
+    debounce switch0_debouncer(
         .clock(CLK100MHZ),
         .reset(reset_debounce),
         .noisy(switch0_noisy),
         .clean(switch0));
-                        
+        
+        // Debounce pause switch
+    wire switch1_noisy, switch1;
+    debounce switch1_debouncer(
+        .clock(CLK100MHZ),
+        .reset(reset_debounce),
+        .noisy(switch1_noisy),
+        .clean(switch1));
+                       
     // Debounce reset button
     wire center_button_noisy, center_button;
     debounce center_button_debouncer(
@@ -81,11 +89,38 @@ module nexys4_game(
     wire [15:0] fret_time;
     wire [5:0] fret_en;
     
+    reg [36:0] NDATA;
+    
+    /*
+    wire [47:0] active;
+    note_deserializer deserial(
+        .clk(CLK100MHZ),
+        .note_serial_sync(JA[1]),
+        .note_serial_data(JA[0]),
+        .active(active)
+    );
+    */
+    always @(posedge CLK100MHZ) begin //AI-driven guitar player
+        //if(switch1) begin
+            if(NDATA == 0) begin
+                NDATA <= 1;
+            end
+            else begin
+                NDATA[36:0] <= {NDATA[35:0], 1'b0};
+            end
+        //end
+        //else begin
+            //NDATA[0] <= 0;
+            //NDATA[36:1] <= active[35:0];
+        //end
+    end
+    
     SC_block SC(
         .clk(CLK100MHZ),
         .pause(pause),
+        .reset(reset),
         .song_time(song_time),
-        .NDATA(),
+        .NDATA(NDATA),
         .metadata_link(metadata_link),
         .metadata_available(metadata_available),
         
@@ -119,6 +154,9 @@ module nexys4_game(
     AV_block AV(
         .clk(CLK100MHZ),
         .clk65(CLK65MHZ),
+        .clk130(CLK130MHZ),
+        .pause(pause),
+        .song_time(song_time),
         .score(score),
         .fret(fret),
         .fret_time(fret_time),
@@ -144,21 +182,15 @@ module nexys4_game(
     // Debounce all buttons
     assign reset_debounce = 0;
     assign switch0_noisy = SW[0];
+    assign switch1_noist = SW[1];
     assign center_button_noisy = BTNC;
 
-    // Assign RGB LEDs from buttons
-    assign LED17_R = left_button;
-    assign LED17_G = up_button;
-    assign LED17_B = left_button & up_button;
-    assign LED16_R = right_button;
-    assign LED16_G = down_button;
-    assign LED16_B = right_button & down_button;
-    
     // Assign switch LEDs to switch states
     assign LED = SW;
     
     // Display 01234567 then fsm state and timer time left
-    assign seg_data = 32'h01234567;
+    assign seg_data[15:0] = song_time;
+    assign seg_data[31:16] = score[15:0];
 
 //
 //////////////////////////////////////////////////////////////////////////////////

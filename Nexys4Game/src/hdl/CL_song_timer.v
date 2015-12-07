@@ -2,7 +2,7 @@ module CL_song_timer(
     input clk, //100mhz clock
     input pause, //high if game is paused
     input reset, //high to clear song_time
-    output reg song_time //10ms clock with pause
+    output reg [15:0] song_time //10ms clock with pause
     );
     
     reg [19:0] counter; //counts to 1_000_000

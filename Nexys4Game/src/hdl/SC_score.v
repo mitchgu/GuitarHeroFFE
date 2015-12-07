@@ -1,5 +1,6 @@
 module SC_score(
     input clk, //100mhz clk
+    input reset,
     input en, //match enable
     input [15:0] dt, //margin of correctness for a matched note
     
@@ -9,7 +10,9 @@ module SC_score(
     initial score = 0;
     
     always @(posedge clk) begin
-        if(en) begin //matched note
+        if(reset)
+            score <= 0;
+        else if(en) begin //matched note
             if(dt < 10) //within 100ms
                 score <= score + 100;
             else if(dt < 25) //within 250ms

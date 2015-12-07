@@ -15,13 +15,14 @@ module CL_block(
     output [36:0] metadata_available,
     output reset, //status signal for reset
     output pause, //status signal for game-pause
-    output song_time //current song_time
+    output [15:0] song_time //current song_time
     );
     
     wire data_loaded;
     //wire song_loaded;
     reg song_loaded = 1; //assuming no song for now
     
+    /*
     //////////////////////////////////////////////////////////////////////////////////
     //  SD stuff
     
@@ -97,7 +98,7 @@ module CL_block(
         .address(adr), // Memory address for read/write operation. This MUST 
                             // be a multiple of 512 bytes, due to SD sectoring.
         .clk(clk25), // 25 MHz clock.
-        .status(state), // For debug purposes: Current state of controller.
+        .status(state) // For debug purposes: Current state of controller.
     );
     
     reg [31:0] data_word;
@@ -106,7 +107,7 @@ module CL_block(
     
     always @(posedge clk25) begin
     
-    /* SD card metadata loading
+    //SD card metadata loading
         if(!data_loaded) begin //need to load metadata
             if(ready) begin //begin a read
                 rd <= 1;
@@ -146,24 +147,26 @@ module CL_block(
         end
         adr <= next_adr;
         
-    */
+    
     
     end
     
     //
     //////////////////////////////////////////////////////////////////////////////////
-
+    */
     
-    CL_metadata_controller metadata_memory(
+    CL_metadata_controller metadata_controller(
         .clk(clk),
         .clk25(clk25),
+        .reset(reset),
+        .song_time(song_time),
         .write_en(write_data),
         .write_word(data_word),
         .metadata_request(metadata_request),
         
         //TODO
         
-        .metadata_available(),
+        .metadata_available(metadata_available),
         .metadata_link(metadata_link),
         .loaded(data_loaded)
     );

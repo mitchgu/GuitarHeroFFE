@@ -12,9 +12,22 @@ module AV_integrator(
     
     input [11:0] bg_pixel,
     
-    output reg [11:0] pixel
+    output [11:0] pixel
     
     );
+    
+    assign pixel = menu_pixel[12] ? menu_pixel[11:0] :
+                    score_pixel[12] ? score_pixel[11:0] :
+                    string1_pixel[12] ? string1_pixel[11:0] :
+                    string2_pixel[12] ? string2_pixel[11:0] :
+                    string3_pixel[12] ? string3_pixel[11:0] :
+                    string4_pixel[12] ? string4_pixel[11:0] :
+                    string5_pixel[12] ? string5_pixel[11:0] :
+                    string6_pixel[12] ? string6_pixel[11:0] :
+                    bg_pixel[11:0];
+
+    
+    /*
     
     always @(posedge clk65) begin //maybe make this assign and wires instead?
     
@@ -45,5 +58,7 @@ module AV_integrator(
         else pixel <= bg_pixel[11:0];
     
     end
-    
+    */
+
+
 endmodule
