@@ -27,8 +27,21 @@ module process_correlation(
     input blank,
     input [9:0] correlation,
     input correlation_valid,
-    output reg [2:0] pixel
+    output reg [2:0] pixel,
+    input thresh_sel,
+    input inc_thresh,
+    input dec_thresh,
+    output reg active,
+    output reg [9:0] thresh_high,
+    output reg [9:0] thresh_low
     );
+
+    parameter THRESH_HIGH = 450;
+    parameter THRESH_LOW = 250;
+
+    initial active = 0;
+    initial thresh_low = THRESH_LOW;
+    initial thresh_high = THRESH_HIGH;
 
     reg [9:0] filter_correlation;
     reg write_new_correlation;
@@ -64,7 +77,20 @@ module process_correlation(
             if (blank) vcorrelation <= new_vcorrelation;
         end
         else read_new_vcorrelation <= 0;
-        pixel <= (hcount < vcorrelation) ? 3'b111 : 3'b000;
+        if (hcount == thresh_low) pixel <= 3'b100;
+        else if (hcount == thresh_high) pixel <= 3'b010;
+        else if (hcount < vcorrelation) pixel <= active ? 3'b011 : 3'b110;
+        else pixel <=  3'b000;
+        if (inc_thresh) begin
+            if (thresh_sel) thresh_high <= thresh_high + 4;
+            else thresh_low <= thresh_low + 4;
+        end
+        if (dec_thresh) begin
+            if (thresh_sel) thresh_high <= thresh_high - 4;
+            else thresh_low <= thresh_low - 4;
+        end
+        if (active & (vcorrelation < thresh_low)) active <= 0;
+        if (~active & (vcorrelation > thresh_high)) active <= 1; 
     end
 
 endmodule

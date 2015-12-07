@@ -27,6 +27,16 @@ module debounce #(parameter DELAY=1000000)   // .01 sec with a 100Mhz clock
       
 endmodule
 
+module level_to_pulse (input clk, input level, output pulse);
+
+    reg last_level;
+    always @(posedge clk) begin
+        last_level <= level;
+    end
+    assign pulse = level & ~last_level;
+
+endmodule
+
 //////////////////////////////////////////////////////////////////////////////////
 // Company:   g.p.hom
 // Engineer: 

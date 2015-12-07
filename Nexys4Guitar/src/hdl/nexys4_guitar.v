@@ -36,7 +36,8 @@ module nexys4_guitar (
     output LED17_B, LED17_G, LED17_R,
     output[15:0] LED, // LEDs above switches
     output[7:0] SEG,  // segments A-G (0-6), DP (7)
-    output[7:0] AN    // Display 0-7
+    output[7:0] AN,    // Display 0-7
+    output[7:0] JA
     );
 
     wire clk_104mhz;
@@ -54,6 +55,97 @@ module nexys4_guitar (
         .clk_out2(clk_65mhz),
         .clk_out3(clk_25mhz));
 
+// **************** BEGIN BASIC IO SETUP *******************************//
+
+    // INSTANTIATE SEVEN SEGMENT DISPLAY
+    wire [31:0] seg_data;
+    wire [6:0] segments;
+    wire [7:0] strobe;
+    display_8hex display(
+        .clk(clk_65mhz),
+        .data(seg_data),
+        .seg(segments),
+        .strobe(strobe)); 
+    
+    // INSTANTIATE DEBOUNCED BUTTONS/SWITCHES
+    wire reset_debounce;
+
+    // Debounce left btn
+    wire left_button_noisy, left_button;
+    debounce left_button_debouncer(
+        .clock(clk_104mhz),
+        .reset(reset_debounce),
+        .noisy(left_button_noisy),
+        .clean(left_button));
+        
+    // Debounce right btn
+    wire right_button_noisy, right_button;
+    debounce #(.DELAY(250000)) right_button_debouncer(
+        .clock(clk_25mhz),
+        .reset(reset_debounce),
+        .noisy(right_button_noisy),
+        .clean(right_button));
+                
+    // Debounce up btn
+    wire up_button_noisy, up_button;
+    debounce #(.DELAY(650000)) up_button_debouncer(
+        .clock(clk_65mhz),
+        .reset(reset_debounce),
+        .noisy(up_button_noisy),
+        .clean(up_button));
+
+    wire up_button_pulse;
+    level_to_pulse up_button_ltp(
+        .clk(clk_65mhz),
+        .level(up_button),
+        .pulse(up_button_pulse));
+
+    // Debounce down btn
+    wire down_button_noisy, down_button;
+    debounce #(.DELAY(650000)) down_button_debouncer(
+        .clock(clk_65mhz),
+        .reset(reset_debounce),
+        .noisy(down_button_noisy),
+        .clean(down_button));
+
+    wire down_button_pulse;
+    level_to_pulse down_button_ltp(
+        .clk(clk_65mhz),
+        .level(down_button),
+        .pulse(down_button_pulse));
+                        
+    // Debounce center btn
+    wire center_button_noisy, center_button;
+    debounce #(.DELAY(250000)) center_button_debouncer(
+        .clock(clk_25mhz),
+        .reset(reset_debounce),
+        .noisy(center_button_noisy),
+        .clean(center_button));
+
+    wire center_button_pulse;
+    level_to_pulse center_button_ltp(
+        .clk(clk_25mhz),
+        .level(center_button),
+        .pulse(center_button_pulse));
+
+    wire [15:0] SWS;
+    genvar i;
+    generate for(i=0; i<6; i=i+1)
+        begin:
+            sync_gen_1 synchronize s65(clk_65mhz, SW[i], SWS[i]);
+        end
+    endgenerate
+    genvar j;
+    generate for(j=6; j<13; j=j+1)
+        begin:
+            sync_gen_0 synchronize s25(clk_25mhz, SW[j], SWS[j]);
+        end
+    endgenerate
+    synchronize s104_0(clk_104mhz, SW[15], SWS[15]);
+    synchronize s65_0(clk_65mhz, SW[14], SWS[14]);
+    synchronize s65_1(clk_65mhz, SW[13], SWS[13]);
+
+// **************** END BASIC IO SETUP *******************************//
 
     wire [15:0] sample_reg;
     wire eoc, xadc_reset;
@@ -385,7 +477,38 @@ module nexys4_guitar (
         .hsync(hsync),
         .blank(blank));
 
-    wire [2:0] correlate_pixel[0:47];
+    defparam pcorrelate_gen[20].pc.THRESH_HIGH = 10'h19A;
+    defparam pcorrelate_gen[20].pc.THRESH_LOW = 10'h0FE;
+    defparam pcorrelate_gen[21].pc.THRESH_HIGH = 10'h17E;
+    defparam pcorrelate_gen[21].pc.THRESH_LOW = 10'h0DA;
+    defparam pcorrelate_gen[22].pc.THRESH_HIGH = 10'h19A;
+    defparam pcorrelate_gen[22].pc.THRESH_LOW = 10'h0F2;
+    defparam pcorrelate_gen[23].pc.THRESH_HIGH = 10'h20E;
+    defparam pcorrelate_gen[23].pc.THRESH_LOW = 10'h0D8;
+    defparam pcorrelate_gen[24].pc.THRESH_HIGH = 10'h19A;
+    defparam pcorrelate_gen[24].pc.THRESH_LOW = 10'h0C4;
+    defparam pcorrelate_gen[25].pc.THRESH_HIGH = 10'h172;
+    defparam pcorrelate_gen[25].pc.THRESH_LOW = 10'h0D0;
+    defparam pcorrelate_gen[26].pc.THRESH_HIGH = 10'h146;
+    defparam pcorrelate_gen[26].pc.THRESH_LOW = 10'h0B0;
+    defparam pcorrelate_gen[27].pc.THRESH_HIGH = 10'h14A;
+    defparam pcorrelate_gen[27].pc.THRESH_LOW = 10'h0BC;
+    defparam pcorrelate_gen[28].pc.THRESH_HIGH = 10'h19E;
+    defparam pcorrelate_gen[28].pc.THRESH_LOW = 10'h10C;
+    defparam pcorrelate_gen[29].pc.THRESH_HIGH = 10'h1BA;
+    defparam pcorrelate_gen[29].pc.THRESH_LOW = 10'h0FC;
+    defparam pcorrelate_gen[30].pc.THRESH_HIGH = 10'h18E;
+    defparam pcorrelate_gen[30].pc.THRESH_LOW = 10'h0D0;
+    defparam pcorrelate_gen[31].pc.THRESH_HIGH = 10'h16A;
+    defparam pcorrelate_gen[31].pc.THRESH_LOW = 10'h0CC;
+
+
+    wire [2:0] correlate_pixel [0:47];
+    reg [47:0] inc_thresh;
+    reg [47:0] dec_thresh;
+    wire [9:0] thresh_high [0:47];
+    wire [9:0] thresh_low [0:47];
+    wire [47:0] active;
     genvar b;
     generate for(b=0; b<48; b=b+1)
         begin : pcorrelate_gen
@@ -397,10 +520,52 @@ module nexys4_guitar (
                 .blank(blank),
                 .correlation(correlation[b]),
                 .correlation_valid(correlations_valid),
-                .pixel(correlate_pixel[b])
+                .pixel(correlate_pixel[b]),
+                .thresh_sel(SWS[13]),
+                .inc_thresh(inc_thresh[b]),
+                .dec_thresh(dec_thresh[b]),
+                .active(active[b]),
+                .thresh_high(thresh_high[b]),
+                .thresh_low(thresh_low[b])
             );
         end
     endgenerate
+
+    wire [47:0] active_fifo_out;
+    wire active_fifo_empty;
+    fifo_generator_1 active_fifo(
+        .wr_clk(clk_65mhz),
+        .din(active),
+        .wr_en(1),
+        .full(),
+        .rd_clk(CLK100MHZ),
+        .empty(active_fifo_empty),
+        .dout(active_fifo_out),
+        .rd_en(~active_fifo_empty)
+        );
+
+    always @(posedge clk_65mhz) begin
+        inc_thresh[SWS[5:0]] <= up_button_pulse;
+        dec_thresh[SWS[5:0]] <= down_button_pulse;
+    end
+
+    reg expecting_read;
+    reg [47:0] active_100mhz;
+    always @(posedge CLK100MHZ) begin
+        expecting_read <= ~active_fifo_empty;
+        if (expecting_read) active_100mhz <= active_fifo_out;
+    end
+
+    wire note_serial_sync, note_serial_data;
+    note_serializer serializer(
+        .clk(CLK100MHZ),
+        .active(active_100mhz),
+        .note_serial_sync(note_serial_sync),
+        .note_serial_data(note_serial_data));
+
+    assign JA[1] = note_serial_sync;
+    assign JA[0] = note_serial_data;
+    assign JA[7:2] = 6'b0;
 
     // INSTANTIATE HISTOGRAM VIDEO
     wire [2:0] hist_pixel;
@@ -448,7 +613,7 @@ module nexys4_guitar (
 
     wire save_start;
     wire saver_reset, saving;
-    wire [6:0] save_slot;
+    wire [5:0] save_slot;
     wire [9:0] save_addr;
     wire [15:0] save_data;
 
@@ -476,74 +641,6 @@ module nexys4_guitar (
         .sd_ready_for_next_byte(sd_ready_for_next_byte),
         .saving(saving)
         );
-
-    // INSTANTIATE SEVEN SEGMENT DISPLAY
-    wire [31:0] seg_data;
-    wire [6:0] segments;
-    wire [7:0] strobe;
-    display_8hex display(
-        .clk(clk_104mhz),
-        .data(seg_data),
-        .seg(segments),
-        .strobe(strobe)); 
-    
-    // INSTANTIATE DEBOUNCED BUTTONS/SWITCHES
-    wire reset_debounce;
-
-    // Debounce left btn
-    wire left_button_noisy, left_button;
-    debounce left_button_debouncer(
-        .clock(clk_104mhz),
-        .reset(reset_debounce),
-        .noisy(left_button_noisy),
-        .clean(left_button));
-        
-    // Debounce right btn
-    wire right_button_noisy, right_button;
-    debounce #(.DELAY(250000)) right_button_debouncer(
-        .clock(clk_25mhz),
-        .reset(reset_debounce),
-        .noisy(right_button_noisy),
-        .clean(right_button));
-                
-    // Debounce up btn
-    wire up_button_noisy, up_button;
-    debounce up_button_debouncer(
-        .clock(clk_104mhz),
-        .reset(reset_debounce),
-        .noisy(up_button_noisy),
-        .clean(up_button));
-
-    // Debounce down btn
-    wire down_button_noisy, down_button;
-    debounce down_button_debouncer(
-        .clock(clk_104mhz),
-        .reset(reset_debounce),
-        .noisy(down_button_noisy),
-        .clean(down_button));
-                        
-    // Debounce center btn
-    wire center_button_noisy, center_button;
-    debounce #(.DELAY(250000)) center_button_debouncer(
-        .clock(clk_25mhz),
-        .reset(reset_debounce),
-        .noisy(center_button_noisy),
-        .clean(center_button));
-
-    wire [15:0] SWS;
-    genvar i;
-    generate for(i=8; i<16; i=i+1)
-        begin:
-            sync_gen_1 synchronize s104(clk_104mhz, SW[i], SWS[i]);
-        end
-    endgenerate
-    genvar j;
-    generate for(j=1; j<8; j=i+1)
-        begin:
-            sync_gen_0 synchronize s25(clk_25mhz, SW[j], SWS[j]);
-        end
-    endgenerate
-    synchronize s104_0(clk_104mhz, SW[0], SWS[0]);
 /*
     ila_0 lifesaver (
         .clk(clk_104mhz), // input wire clk
@@ -563,7 +660,7 @@ module nexys4_guitar (
         .probe13(magnitude_tlast), // input wire [0:0]  probe13 
         .probe14(swe), // input wire [0:0]  probe14 
         .probe15(up_button) // input wire [0:0]  probe15
-    ); */
+    ); *
     ila_0 lifesaver (
         .clk(clk_104mhz), // input wire clk
         .probe0(magnitude_tdata[15:0]), // input wire [11:0]  probe0  
@@ -588,7 +685,7 @@ module nexys4_guitar (
         .probe19(debug[47][1]),
         .probe20(debug[47][0]),
         .probe21(left_button)
-    );
+    );*/
 
 //////////////////////////////////////////////////////////////////////////////////
 //  
@@ -597,7 +694,7 @@ module nexys4_guitar (
     assign guitar_n = AD3N;
 
     // PWM input is 16x or 256x oversampled depending on switch 0
-    assign pwm_sample = SWS[0] ? osample16[13:3] : osample256[15:5];
+    assign pwm_sample = SWS[15] ? osample16[13:3] : osample256[15:5];
     // Connect the guitar pwm audio to Nexys's PWM out
     assign AUD_PWM = guitar_audio_pwm;
     assign AUD_SD = guitar_audio_sd;
@@ -618,13 +715,11 @@ module nexys4_guitar (
         hsync_out <= hsync_stage[1];
         vsync_out <= vsync_stage[1];
         vcount_stage <= vcount;
-        if (vcount_stage < 64) correlate_pixel_out <= correlate_pixel[SW[5:0]];
-        else if (vcount_stage < 128) correlate_pixel_out <= correlate_pixel[SW[11:6]];
-        else correlate_pixel_out <= 3'b000;
+        correlate_pixel_out <= correlate_pixel[vcount_stage>>4];
     end
-    assign VGA_R = {4{hist_pixel[0] | correlate_pixel_out[0]}};
-    assign VGA_G = {4{hist_pixel[1] | correlate_pixel_out[1]}};
-    assign VGA_B = {4{hist_pixel[2] | correlate_pixel_out[2]}};
+    assign VGA_R = SW[14] ? {4{hist_pixel[0]}} : {4{correlate_pixel_out[0]}};
+    assign VGA_G = SW[14] ? {4{hist_pixel[1]}} : {4{correlate_pixel_out[1]}};
+    assign VGA_B = SW[14] ? {4{hist_pixel[2]}} : {4{correlate_pixel_out[2]}};
     assign VGA_HS = hsync_out;
     assign VGA_VS = vsync_out;
 
@@ -638,12 +733,10 @@ module nexys4_guitar (
     assign sd_reset = right_button;
     assign saver_reset = right_button;
 
-    reg old_center_button = 0;
-    always @(posedge clk_25mhz) old_center_button <= center_button;
-    assign save_start = center_button & ~old_center_button;
+    assign save_start = center_button_pulse;
 
     // HISTOGRAM SAVER INTERFACE
-    assign save_slot = SW[8:1];
+    assign save_slot = SW[12:6];
 
     // Debounce all buttons
     assign reset_debounce = 0;
@@ -665,7 +758,7 @@ module nexys4_guitar (
     assign LED = SW;
     
     // Display 01234567 then fsm state and timer time left
-    assign seg_data = 32'hdeadbeef; 
+    assign seg_data = {2'b0,SW[5:0],2'b0,thresh_high[SWS[5:0]],2'b0,thresh_low[SWS[5:0]]}; 
 
     // Link segments module output to segments
     assign AN = strobe;  
