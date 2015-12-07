@@ -157,9 +157,6 @@ module nexys4_guitar (
     wire [23:0] magnitude_tdata;
     wire [11:0] magnitude_tuser;
     wire magnitude_tlast, magnitude_tvalid;
-    wire [31:0] mag_squared_tdata;
-    wire [11:0] mag_squared_tuser;
-    wire mag_squared_tlast, mag_squared_tvalid;
     fft_mag fft_mag_i(
         .clk(clk_104mhz),
         .event_tlast_missing(last_missing),
@@ -167,10 +164,6 @@ module nexys4_guitar (
         .frame_tlast(frame_tlast),
         .frame_tready(frame_tready),
         .frame_tvalid(frame_tvalid),
-        .mag_squared_tdata(mag_squared_tdata),
-        .mag_squared_tlast(mag_squared_tlast),
-        .mag_squared_tuser(mag_squared_tuser),
-        .mag_squared_tvalid(mag_squared_tvalid),
         .magnitude_tdata(magnitude_tdata),
         .magnitude_tlast(magnitude_tlast),
         .magnitude_tuser(magnitude_tuser),
@@ -178,18 +171,6 @@ module nexys4_guitar (
 
     wire in_range;
     assign in_range = ~|magnitude_tuser[11:10];
-
-    wire [20:0] norm_tdata;
-    wire norm_tvalid;
-    calculate_norm calc_norm(
-        .clk(clk_104mhz),
-        .mag_squared_tdata(mag_squared_tdata),
-        .mag_squared_tlast(mag_squared_tlast),
-        .mag_squared_tuser(mag_squared_tuser),
-        .mag_squared_tvalid(mag_squared_tvalid),
-        .norm_tdata(norm_tdata),
-        .norm_tvalid(norm_tvalid)
-        );
 
     // INSTANTIATE HISTOGRAM BLOCK RAM 
     // This 16x1024 bram stores the histogram data.
@@ -207,139 +188,59 @@ module nexys4_guitar (
         .addrb(haddr),     // input wire [9 : 0] addrb
         .doutb(hdata)      // output wire [15 : 0] doutb
     );
-/*
-    correlator correlator_00(
-        .clk(clk_104mhz),
-        .magnitude_tdata(magnitude_tdata[15:0]),
-        .magnitude_tlast(magnitude_tlast),
-        .magnitude_tvalid(magnitude_tvalid),
-        .magnitude_tuser(magnitude_tuser),
-        .norm_tdata(norm_tdata),
-        .norm_tvalid(norm_tvalid),
-        .dot_product(dot_product[0]),
-        .normalizer(normalizer[0]),
-        .dot_product_valid(dot_product_valid[0]),
-        .debug(debug[0])
-        );*/
-
-/*
-    reg [8*6:0] mif_file [0:47];
-    reg [8*11:0] norm_file [0:47];
-    integer z;
-    integer normf;
-    integer status;
-    reg [20:0] ref_norm = 0;
-    initial begin
-        for (z=0; z<48; z=z+1) begin
-            mif_file[z] = $sformatf("%0d.mif", z);
-            norm_file[z] = $sformatf("%0d_norm.mif", z);
-            normf = $fopen(norm_file, "r");
-            status = $fscanf(fin,"%b",ref_norm);
-            $fclose(normf);
-        end
-    end */
 
     defparam correlator_gen[0].c.REF_MIF = "../mif/00.mif";
-    defparam correlator_gen[0].c.NORM_REF = 21'b0000011111111101000011;
     defparam correlator_gen[1].c.REF_MIF = "../mif/01.mif";
-    defparam correlator_gen[1].c.NORM_REF = 21'b0000100000010010111100;
     defparam correlator_gen[2].c.REF_MIF = "../mif/02.mif";
-    defparam correlator_gen[2].c.NORM_REF = 21'b0000011001010010011100;
     defparam correlator_gen[3].c.REF_MIF = "../mif/03.mif";
-    defparam correlator_gen[3].c.NORM_REF = 21'b0000100010001110010110;
     defparam correlator_gen[4].c.REF_MIF = "../mif/04.mif";
-    defparam correlator_gen[4].c.NORM_REF = 21'b0000011101001110101011;
     defparam correlator_gen[5].c.REF_MIF = "../mif/05.mif";
-    defparam correlator_gen[5].c.NORM_REF = 21'b0000011010101110101100;
     defparam correlator_gen[6].c.REF_MIF = "../mif/06.mif";
-    defparam correlator_gen[6].c.NORM_REF = 21'b0000010110001000010000;
     defparam correlator_gen[7].c.REF_MIF = "../mif/07.mif";
-    defparam correlator_gen[7].c.NORM_REF = 21'b0000011010110010001010;
     defparam correlator_gen[8].c.REF_MIF = "../mif/08.mif";
-    defparam correlator_gen[8].c.NORM_REF = 21'b0000010111011101000000;
     defparam correlator_gen[9].c.REF_MIF = "../mif/09.mif";
-    defparam correlator_gen[9].c.NORM_REF = 21'b0000011110010110000001;
     defparam correlator_gen[10].c.REF_MIF = "../mif/10.mif";
-    defparam correlator_gen[10].c.NORM_REF = 21'b0000010011001011100110;
     defparam correlator_gen[11].c.REF_MIF = "../mif/11.mif";
-    defparam correlator_gen[11].c.NORM_REF = 21'b0000010110011000011000;
     defparam correlator_gen[12].c.REF_MIF = "../mif/12.mif";
-    defparam correlator_gen[12].c.NORM_REF = 21'b0000010110000000100110;
     defparam correlator_gen[13].c.REF_MIF = "../mif/13.mif";
-    defparam correlator_gen[13].c.NORM_REF = 21'b0000010110010000111101;
     defparam correlator_gen[14].c.REF_MIF = "../mif/14.mif";
-    defparam correlator_gen[14].c.NORM_REF = 21'b0000010100110101101100;
     defparam correlator_gen[15].c.REF_MIF = "../mif/15.mif";
-    defparam correlator_gen[15].c.NORM_REF = 21'b0000010110111011101100;
     defparam correlator_gen[16].c.REF_MIF = "../mif/16.mif";
-    defparam correlator_gen[16].c.NORM_REF = 21'b0000011011000110011010;
     defparam correlator_gen[17].c.REF_MIF = "../mif/17.mif";
-    defparam correlator_gen[17].c.NORM_REF = 21'b0000011010011110010000;
     defparam correlator_gen[18].c.REF_MIF = "../mif/18.mif";
-    defparam correlator_gen[18].c.NORM_REF = 21'b0000010111000111100010;
     defparam correlator_gen[19].c.REF_MIF = "../mif/19.mif";
-    defparam correlator_gen[19].c.NORM_REF = 21'b0000011001000011101011;
     defparam correlator_gen[20].c.REF_MIF = "../mif/20.mif";
-    defparam correlator_gen[20].c.NORM_REF = 21'b0000011000101001101010;
     defparam correlator_gen[21].c.REF_MIF = "../mif/21.mif";
-    defparam correlator_gen[21].c.NORM_REF = 21'b0000010011111111101110;
     defparam correlator_gen[22].c.REF_MIF = "../mif/22.mif";
-    defparam correlator_gen[22].c.NORM_REF = 21'b0000010010010011100100;
     defparam correlator_gen[23].c.REF_MIF = "../mif/23.mif";
-    defparam correlator_gen[23].c.NORM_REF = 21'b0000010100011100110110;
     defparam correlator_gen[24].c.REF_MIF = "../mif/24.mif";
-    defparam correlator_gen[24].c.NORM_REF = 21'b0000001110101011101001;
     defparam correlator_gen[25].c.REF_MIF = "../mif/25.mif";
-    defparam correlator_gen[25].c.NORM_REF = 21'b0000010010011111110100;
     defparam correlator_gen[26].c.REF_MIF = "../mif/26.mif";
-    defparam correlator_gen[26].c.NORM_REF = 21'b0000001111011000011010;
     defparam correlator_gen[27].c.REF_MIF = "../mif/27.mif";
-    defparam correlator_gen[27].c.NORM_REF = 21'b0000010001000000100011;
     defparam correlator_gen[28].c.REF_MIF = "../mif/28.mif";
-    defparam correlator_gen[28].c.NORM_REF = 21'b0000010001110011111000;
     defparam correlator_gen[29].c.REF_MIF = "../mif/29.mif";
-    defparam correlator_gen[29].c.NORM_REF = 21'b0000001110111111101010;
     defparam correlator_gen[30].c.REF_MIF = "../mif/30.mif";
-    defparam correlator_gen[30].c.NORM_REF = 21'b0000010000010011101110;
     defparam correlator_gen[31].c.REF_MIF = "../mif/31.mif";
-    defparam correlator_gen[31].c.NORM_REF = 21'b0000010000000100100100;
     defparam correlator_gen[32].c.REF_MIF = "../mif/32.mif";
-    defparam correlator_gen[32].c.NORM_REF = 21'b0000010000011101001100;
     defparam correlator_gen[33].c.REF_MIF = "../mif/33.mif";
-    defparam correlator_gen[33].c.NORM_REF = 21'b0000001111000010101110;
     defparam correlator_gen[34].c.REF_MIF = "../mif/34.mif";
-    defparam correlator_gen[34].c.NORM_REF = 21'b0000001100001011011010;
     defparam correlator_gen[35].c.REF_MIF = "../mif/35.mif";
-    defparam correlator_gen[35].c.NORM_REF = 21'b0000001101110001101110;
     defparam correlator_gen[36].c.REF_MIF = "../mif/36.mif";
-    defparam correlator_gen[36].c.NORM_REF = 21'b0000010000010001100101;
     defparam correlator_gen[37].c.REF_MIF = "../mif/37.mif";
-    defparam correlator_gen[37].c.NORM_REF = 21'b0000001111001010001111;
     defparam correlator_gen[38].c.REF_MIF = "../mif/38.mif";
-    defparam correlator_gen[38].c.NORM_REF = 21'b0000001100000100100110;
     defparam correlator_gen[39].c.REF_MIF = "../mif/39.mif";
-    defparam correlator_gen[39].c.NORM_REF = 21'b0000001110001111000110;
     defparam correlator_gen[40].c.REF_MIF = "../mif/40.mif";
-    defparam correlator_gen[40].c.NORM_REF = 21'b0000101011101100010101;
     defparam correlator_gen[41].c.REF_MIF = "../mif/41.mif";
-    defparam correlator_gen[41].c.NORM_REF = 21'b0000100100000110000011;
     defparam correlator_gen[42].c.REF_MIF = "../mif/42.mif";
-    defparam correlator_gen[42].c.NORM_REF = 21'b0000100111001110100001;
     defparam correlator_gen[43].c.REF_MIF = "../mif/43.mif";
-    defparam correlator_gen[43].c.NORM_REF = 21'b0000100110110001000111;
     defparam correlator_gen[44].c.REF_MIF = "../mif/44.mif";
-    defparam correlator_gen[44].c.NORM_REF = 21'b0000101101001110000001;
     defparam correlator_gen[45].c.REF_MIF = "../mif/45.mif";
-    defparam correlator_gen[45].c.NORM_REF = 21'b0000110011010000001000;
     defparam correlator_gen[46].c.REF_MIF = "../mif/46.mif";
-    defparam correlator_gen[46].c.NORM_REF = 21'b0000100101010000100101;
     defparam correlator_gen[47].c.REF_MIF = "../mif/47.mif";
-    defparam correlator_gen[47].c.NORM_REF = 21'b0000100011101110110010;
 
     wire [41:0] dot_product [0:47];
-    wire [31:0] normalizer [0:47];
     wire [47:0] dot_product_valid;
-    wire [82:0] debug [0:47];
+    wire [81:0] debug [0:47];
     genvar a;
     generate for(a=0; a<48; a=a+1)
         begin : correlator_gen
@@ -349,10 +250,7 @@ module nexys4_guitar (
                 .magnitude_tlast(magnitude_tlast),
                 .magnitude_tvalid(magnitude_tvalid),
                 .magnitude_tuser(magnitude_tuser),
-                .norm_tdata(norm_tdata),
-                .norm_tvalid(norm_tvalid),
                 .dot_product(dot_product[a]),
-                .normalizer(normalizer[a]),
                 .dot_product_valid(dot_product_valid[a]),
                 .debug(debug[a])
                 );
@@ -361,9 +259,14 @@ module nexys4_guitar (
 
     wire [9:0] correlation [0:47];
     wire correlations_valid;
+/*
+    typedef reg [42:0] dot_product;
+    dot_product [47:0] dot_product_bundle;
 
+    typedef reg [9:0] correlation;
+    correlation [47:0] correlation_bundle;
+*/
     wire [42*48-1:0] dot_product_f;
-    wire [32*48-1:0] normalizer_f;
     wire [10*48-1:0] correlation_f;
     assign dot_product_f[0*42 +: 42] = dot_product[0];
     assign dot_product_f[1*42 +: 42] = dot_product[1];
@@ -413,54 +316,6 @@ module nexys4_guitar (
     assign dot_product_f[45*42 +: 42] = dot_product[45];
     assign dot_product_f[46*42 +: 42] = dot_product[46];
     assign dot_product_f[47*42 +: 42] = dot_product[47];
-    assign normalizer_f[0*32 +: 32] = normalizer[0];
-    assign normalizer_f[1*32 +: 32] = normalizer[1];
-    assign normalizer_f[2*32 +: 32] = normalizer[2];
-    assign normalizer_f[3*32 +: 32] = normalizer[3];
-    assign normalizer_f[4*32 +: 32] = normalizer[4];
-    assign normalizer_f[5*32 +: 32] = normalizer[5];
-    assign normalizer_f[6*32 +: 32] = normalizer[6];
-    assign normalizer_f[7*32 +: 32] = normalizer[7];
-    assign normalizer_f[8*32 +: 32] = normalizer[8];
-    assign normalizer_f[9*32 +: 32] = normalizer[9];
-    assign normalizer_f[10*32 +: 32] = normalizer[10];
-    assign normalizer_f[11*32 +: 32] = normalizer[11];
-    assign normalizer_f[12*32 +: 32] = normalizer[12];
-    assign normalizer_f[13*32 +: 32] = normalizer[13];
-    assign normalizer_f[14*32 +: 32] = normalizer[14];
-    assign normalizer_f[15*32 +: 32] = normalizer[15];
-    assign normalizer_f[16*32 +: 32] = normalizer[16];
-    assign normalizer_f[17*32 +: 32] = normalizer[17];
-    assign normalizer_f[18*32 +: 32] = normalizer[18];
-    assign normalizer_f[19*32 +: 32] = normalizer[19];
-    assign normalizer_f[20*32 +: 32] = normalizer[20];
-    assign normalizer_f[21*32 +: 32] = normalizer[21];
-    assign normalizer_f[22*32 +: 32] = normalizer[22];
-    assign normalizer_f[23*32 +: 32] = normalizer[23];
-    assign normalizer_f[24*32 +: 32] = normalizer[24];
-    assign normalizer_f[25*32 +: 32] = normalizer[25];
-    assign normalizer_f[26*32 +: 32] = normalizer[26];
-    assign normalizer_f[27*32 +: 32] = normalizer[27];
-    assign normalizer_f[28*32 +: 32] = normalizer[28];
-    assign normalizer_f[29*32 +: 32] = normalizer[29];
-    assign normalizer_f[30*32 +: 32] = normalizer[30];
-    assign normalizer_f[31*32 +: 32] = normalizer[31];
-    assign normalizer_f[32*32 +: 32] = normalizer[32];
-    assign normalizer_f[33*32 +: 32] = normalizer[33];
-    assign normalizer_f[34*32 +: 32] = normalizer[34];
-    assign normalizer_f[35*32 +: 32] = normalizer[35];
-    assign normalizer_f[36*32 +: 32] = normalizer[36];
-    assign normalizer_f[37*32 +: 32] = normalizer[37];
-    assign normalizer_f[38*32 +: 32] = normalizer[38];
-    assign normalizer_f[39*32 +: 32] = normalizer[39];
-    assign normalizer_f[40*32 +: 32] = normalizer[40];
-    assign normalizer_f[41*32 +: 32] = normalizer[41];
-    assign normalizer_f[42*32 +: 32] = normalizer[42];
-    assign normalizer_f[43*32 +: 32] = normalizer[43];
-    assign normalizer_f[44*32 +: 32] = normalizer[44];
-    assign normalizer_f[45*32 +: 32] = normalizer[45];
-    assign normalizer_f[46*32 +: 32] = normalizer[46];
-    assign normalizer_f[47*32 +: 32] = normalizer[47];
     assign correlation[0] = correlation_f[0*10 +: 10];
     assign correlation[1] = correlation_f[1*10 +: 10];
     assign correlation[2] = correlation_f[2*10 +: 10];
@@ -513,7 +368,6 @@ module nexys4_guitar (
     process_div process_div_0(
         .clk(clk_104mhz),
         .dot_product_f(dot_product_f),
-        .normalizer_f(normalizer_f),
         .dot_product_valid(dot_product_valid),
         .correlation_f(correlation_f),
         .correlations_valid(correlations_valid)
@@ -715,25 +569,25 @@ module nexys4_guitar (
         .probe0(magnitude_tdata[15:0]), // input wire [11:0]  probe0  
         .probe1(magnitude_tuser), // input wire [15:0]  probe1 
         .probe2(magnitude_tvalid), // input wire [15:0]  probe2 
-        .probe3(mag_squared_tdata), // input wire [11:0]  probe3 
-        .probe4(mag_squared_tvalid), // input wire [15:0]  probe4 
-        .probe5(norm_tdata), // input wire [11:0]  probe5 
-        .probe6(norm_tvalid), // input wire [31:0]  probe6 
+        .probe3(32'b0), // input wire [11:0]  probe3 
+        .probe4(0   ), // input wire [15:0]  probe4 
+        .probe5(21'b0), // input wire [11:0]  probe5 
+        .probe6(0), // input wire [31:0]  probe6 
         .probe7(dot_product[47]), // input wire [0:0]  probe7 
-        .probe8(normalizer[47]), // input wire [0:0]  probe8 
+        .probe8(32'b0), // input wire [0:0]  probe8 
         .probe9(dot_product_valid[47]), // input wire [0:0]  probe9 
         .probe10(correlation[47]), // input wire [0:0]  probe10 
         .probe11(correlations_valid), // input wire [0:0]  probe11 
-        .probe12(mag_squared_tuser), // input wire [0:0]  probe12 
+        .probe12(12'b0), // input wire [0:0]  probe12 
         .probe13(magnitude_tlast), // input wire [0:0]  probe13 
-        .probe14(mag_squared_tlast), // input wire [0:0]  probe14 
+        .probe14(0), // input wire [0:0]  probe14 
         .probe15(in_range), // input wire [0:0]  probe15
-        .probe16(debug[47][82:67]),
-        .probe17(debug[47][66:51]),
-        .probe18(debug[47][50:3]),
-        .probe19(debug[47][2]),
-        .probe20(debug[47][1]),
-        .probe21(debug[47][0])
+        .probe16(debug[47][81:66]),
+        .probe17(debug[47][65:50]),
+        .probe18(debug[47][49:2]),
+        .probe19(debug[47][1]),
+        .probe20(debug[47][0]),
+        .probe21(left_button)
     );
 
 //////////////////////////////////////////////////////////////////////////////////

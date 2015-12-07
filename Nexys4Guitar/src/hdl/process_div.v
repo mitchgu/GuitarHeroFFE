@@ -23,14 +23,17 @@
 module process_div(
     input clk,
     input [42*48-1:0] dot_product_f,
-    input [32*48-1:0] normalizer_f,
     input [1*48-1:0] dot_product_valid,
     output wire [10*48-1:0] correlation_f,
     output reg correlations_valid 
     );
+    
+    parameter REF_NORM_SQUARED_MIF = "../mif/norms.mif";
+
+    reg [32:0] ref_norm_squared [0:47];
+    initial $readmemb(REF_NORM_SQUARED_MIF, ref_norm_squared);
 
     wire [41:0] dot_product [0:47];
-    wire [31:0] normalizer [0:47];
     reg [9:0] correlation [0:47];
 
     assign dot_product[0] = dot_product_f[0*42 +: 42];
@@ -81,54 +84,6 @@ module process_div(
     assign dot_product[45] = dot_product_f[45*42 +: 42];
     assign dot_product[46] = dot_product_f[46*42 +: 42];
     assign dot_product[47] = dot_product_f[47*42 +: 42];
-    assign normalizer[0] = normalizer_f[0*32 +: 32];
-    assign normalizer[1] = normalizer_f[1*32 +: 32];
-    assign normalizer[2] = normalizer_f[2*32 +: 32];
-    assign normalizer[3] = normalizer_f[3*32 +: 32];
-    assign normalizer[4] = normalizer_f[4*32 +: 32];
-    assign normalizer[5] = normalizer_f[5*32 +: 32];
-    assign normalizer[6] = normalizer_f[6*32 +: 32];
-    assign normalizer[7] = normalizer_f[7*32 +: 32];
-    assign normalizer[8] = normalizer_f[8*32 +: 32];
-    assign normalizer[9] = normalizer_f[9*32 +: 32];
-    assign normalizer[10] = normalizer_f[10*32 +: 32];
-    assign normalizer[11] = normalizer_f[11*32 +: 32];
-    assign normalizer[12] = normalizer_f[12*32 +: 32];
-    assign normalizer[13] = normalizer_f[13*32 +: 32];
-    assign normalizer[14] = normalizer_f[14*32 +: 32];
-    assign normalizer[15] = normalizer_f[15*32 +: 32];
-    assign normalizer[16] = normalizer_f[16*32 +: 32];
-    assign normalizer[17] = normalizer_f[17*32 +: 32];
-    assign normalizer[18] = normalizer_f[18*32 +: 32];
-    assign normalizer[19] = normalizer_f[19*32 +: 32];
-    assign normalizer[20] = normalizer_f[20*32 +: 32];
-    assign normalizer[21] = normalizer_f[21*32 +: 32];
-    assign normalizer[22] = normalizer_f[22*32 +: 32];
-    assign normalizer[23] = normalizer_f[23*32 +: 32];
-    assign normalizer[24] = normalizer_f[24*32 +: 32];
-    assign normalizer[25] = normalizer_f[25*32 +: 32];
-    assign normalizer[26] = normalizer_f[26*32 +: 32];
-    assign normalizer[27] = normalizer_f[27*32 +: 32];
-    assign normalizer[28] = normalizer_f[28*32 +: 32];
-    assign normalizer[29] = normalizer_f[29*32 +: 32];
-    assign normalizer[30] = normalizer_f[30*32 +: 32];
-    assign normalizer[31] = normalizer_f[31*32 +: 32];
-    assign normalizer[32] = normalizer_f[32*32 +: 32];
-    assign normalizer[33] = normalizer_f[33*32 +: 32];
-    assign normalizer[34] = normalizer_f[34*32 +: 32];
-    assign normalizer[35] = normalizer_f[35*32 +: 32];
-    assign normalizer[36] = normalizer_f[36*32 +: 32];
-    assign normalizer[37] = normalizer_f[37*32 +: 32];
-    assign normalizer[38] = normalizer_f[38*32 +: 32];
-    assign normalizer[39] = normalizer_f[39*32 +: 32];
-    assign normalizer[40] = normalizer_f[40*32 +: 32];
-    assign normalizer[41] = normalizer_f[41*32 +: 32];
-    assign normalizer[42] = normalizer_f[42*32 +: 32];
-    assign normalizer[43] = normalizer_f[43*32 +: 32];
-    assign normalizer[44] = normalizer_f[44*32 +: 32];
-    assign normalizer[45] = normalizer_f[45*32 +: 32];
-    assign normalizer[46] = normalizer_f[46*32 +: 32];
-    assign normalizer[47] = normalizer_f[47*32 +: 32];
     assign correlation_f[0*10 +: 10] = correlation[0];
     assign correlation_f[1*10 +: 10] = correlation[1];
     assign correlation_f[2*10 +: 10] = correlation[2];
@@ -178,11 +133,11 @@ module process_div(
     assign correlation_f[46*10 +: 10] = correlation[46];
     assign correlation_f[47*10 +: 10] = correlation[47];
 
-    reg [31:0] divisor_tdata;
+    reg [39:0] divisor_tdata;
     reg [41:0] dividend_tdata;
     reg divide_tvalid;
     wire correlation_tvalid;
-    wire [79:0] correlation_tdata;
+    wire [87:0] correlation_tdata;
     correlate_div corrediv (
         .aclk(clk),                                      // input wire aclk
         .s_axis_divisor_tvalid(divide_tvalid),    // input wire s_axis_divisor_tvalid
@@ -207,7 +162,7 @@ module process_div(
             receiving <= 1;
         end
         if (sending) begin
-            divisor_tdata <= normalizer[send_index];
+            divisor_tdata <= {7'b0,ref_norm_squared[send_index]};
             dividend_tdata <= dot_product[send_index];
             divide_tvalid <= 1;
             if (send_index == 47) begin
@@ -218,7 +173,7 @@ module process_div(
         end
         else divide_tvalid <= 0;
         if (receiving) begin
-            correlation[recv_index] <= correlation_tdata[41:32];
+            correlation[recv_index] <= correlation_tdata[49:40];
             if (recv_index == 47) begin
                 receiving <= 0;
                 recv_index <= 0;
