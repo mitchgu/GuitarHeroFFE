@@ -1,6 +1,7 @@
 module SC_note_matching_super(
     input clk,
     input pause,
+    input reset,
     input [15:0] song_time,
     input [36:0] NDATA,
     input [37*16-1:0] metadata_link,
@@ -18,6 +19,7 @@ module SC_note_matching_super(
     SC_note_matching_sub note_matcher [36:0] (
         .clk(clk),
         .pause(pause),
+        .reset(reset),
         .song_time(song_time),
         .note_edge(note_edge),
         .note_time(metadata_link),

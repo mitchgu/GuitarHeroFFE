@@ -3,25 +3,111 @@ module AV_string
     parameter y_location = 10'b0
     )
     (
-    input clk,
+    input clk65,
+    input clk130,
+    input reset,
     input [15:0] song_time,
     input match_en,
     input [4:0] fret,
     input [15:0] match_time,
     input [10:0] hcount,
     input [9:0] vcount,
+    input [13*16-1:0] pdata,
     
+    output [9:0] paddr,
     output [12:0] string_pixel
     );
     
-    reg[54:0] x;
-    reg [49:0] y;
+    reg [9:0] x[4:0];
+
+    localparam playX = 180;
+
     reg [24:0] values;
-    wire [64:0] note_pixels;
+    wire [12:0] note_pixels[4:0];
 
+    reg [4:0] note_frets[4:0];
 
-    reg [9:0] y_loc = y_location;
+    wire [7:0] pdata_addr[4:0]; //CHANGE TO FRET VALUE ASSIGNMENT
+    assign pdata_addr[0] = note_frets[0]*13;
+    assign pdata_addr[1] = note_frets[1]*13;
+    assign pdata_addr[2] = note_frets[2]*13;
+    assign pdata_addr[3] = note_frets[3]*13;
+    assign pdata_addr[4] = note_frets[4]*13;
 
+    wire [12:0] pdata_pass[4:0];
+    assign pdata_pass[0] = pdata[pdata_addr[0]+:13];
+    assign pdata_pass[1] = pdata[pdata_addr[1]+:13];
+    assign pdata_pass[2] = pdata[pdata_addr[2]+:13];
+    assign pdata_pass[3] = pdata[pdata_addr[3]+:13];
+    assign pdata_pass[4] = pdata[pdata_addr[4]+:13];
+
+    wire [9:0] paddrs[4:0];
+
+    fret_sprite #(
+        .Y(y_location)
+    ) sprite0 (
+        .clk(clk65),
+        .hcount(hcount),
+        .vcount(vcount),
+        .x(x[0]),
+        .paddr(paddrs[0]),
+        .pdata(pdata_pass[0]),
+        .pixel(note_pixels[0])
+    );
+
+    fret_sprite #(
+        .Y(y_location)
+    ) sprite1 (
+        .clk(clk65),
+        .hcount(hcount),
+        .vcount(vcount),
+        .x(x[1]),
+        .paddr(paddrs[1]),
+        .pdata(pdata_pass[1]),
+        .pixel(note_pixels[1])
+    );
+
+    fret_sprite #(
+        .Y(y_location)
+    ) sprite2 (
+        .clk(clk65),
+        .hcount(hcount),
+        .vcount(vcount),
+        .x(x[2]),
+        .paddr(paddrs[2]),
+        .pdata(pdata_pass[2]),
+        .pixel(note_pixels[2])
+    );
+
+    fret_sprite #(
+        .Y(y_location)
+    ) sprite3 (
+        .clk(clk65),
+        .hcount(hcount),
+        .vcount(vcount),
+        .x(x[3]),
+        .paddr(paddrs[3]),
+        .pdata(pdata_pass[3]),
+        .pixel(note_pixels[3])
+    );
+
+    fret_sprite #(
+        .Y(y_location)
+    ) sprite4 (
+        .clk(clk65),
+        .hcount(hcount),
+        .vcount(vcount),
+        .x(x[4]),
+        .paddr(paddrs[4]),
+        .pdata(pdata_pass[4]),
+        .pixel(note_pixels[4])
+    );
+
+    assign paddr = paddrs[0]|paddrs[1]|paddrs[2]|paddrs[3]|paddrs[4];
+
+    //reg [9:0] y_loc = y_location;
+
+    /*
     AV_note_sprite notes [4:0] (
         .clk65(clk),
         .x(x),
@@ -32,6 +118,9 @@ module AV_string
         
         .note_pixel(note_pixels)
     );
+    */
+
+    /* REGISTER METADATA IS BAD
 
     reg [511:0] note_times;
     reg [159:0] note_frets;
@@ -134,27 +223,93 @@ module AV_string
     note_frets[4:0] = 0;
     end
     
-    always @(posedge clk) begin
-        if( (song_time > note_times[511:496]) && (song_time - note_times[511:496] > 50) ) begin
-        //if the leftmost note is old, and it is older than 500ms, get rid of it
-            note_times[511:0] <= {note_times[495:0] , 16'b0};
-            note_frets[159:0] <= {note_frets[154:0] , 5'b0};
+    */
+    
+    reg [4:0] note_index = 0;
+    reg [4:0] note_addr = 0;
+    
+    wire [15:0] dout_time;
+    note_times note_times_mem(
+        .clka(clk130),
+        .ena(1'b1),
+        .addra(note_addr), //5-bit address
+        .douta(dout_time) //16-bit note time out
+    );
+    
+    wire [4:0] dout_fret;
+    note_frets note_frets_mem(
+        .clka(clk130),
+        .ena(1'b1),
+        .addra(note_addr), //5-bit address
+        .douta(dout_fret) //5-bit note fret out
+    );
+    
+    reg[2:0] loading_state = 5;
+    reg [15:0] note_times[4:0];
+    
+    always @(posedge clk65) begin
+
+        if(reset) begin
+            note_index <= 0;
+            note_addr <= 0;
+            loading_state <= 5;
         end
-    
-        //calculate/refresh note-sprite x-values and fret numbers
-        x[54:44] <= (note_times[511:496] + 50 - song_time) / 10;
-        values[24:20] <= note_frets[159:155];
-        x[43:33] <= (note_times[495:480] + 50 - song_time) / 10;
-        values[19:15] <= note_frets[154:150];
-        x[32:22] <= (note_times[479:464] + 50 - song_time) / 10;
-        values[14:10] <= note_frets[149:145];
-        x[21:11] <= (note_times[463:448] + 50 - song_time) / 10;
-        values[9:5] <= note_frets[144:140];
-        x[10:0] <= (note_times[447:432] + 50 - song_time) / 10;
-        values[4:0] <= note_frets[139:135];
-    
+            else begin
+            if( (song_time > note_times[0]) && (song_time - note_times[0] > 50) ) begin
+            //if the note is old, and it is older than 500ms, get rid of it
+                note_index <= note_index + 1;
+            end
+
+            if(vcount == 0) begin //update all of the notes. Only need to do this once a frame
+                case(loading_state)
+                    0: begin //load for the 1st sprite
+                        note_times[0] <= dout_time;
+                        note_frets[0] <= dout_fret;
+                        note_addr <= note_addr + 1;
+                        loading_state <= loading_state + 1;
+                    end
+                    1: begin //load for the 2nd
+                        note_times[1] <= dout_time;
+                        note_frets[1] <= dout_fret;
+                        note_addr <= note_addr + 1;
+                        loading_state <= loading_state + 1;
+                    end
+                    2: begin
+                        note_times[2] <= dout_time;
+                        note_frets[2] <= dout_fret;
+                        note_addr <= note_addr + 1;
+                        loading_state <= loading_state + 1;
+                    end
+                    3: begin
+                        note_times[3] <= dout_time;
+                        note_frets[3] <= dout_fret;
+                        note_addr <= note_addr + 1;
+                        loading_state <= loading_state + 1;
+                    end
+                    4: begin
+                        note_times[4] <= dout_time;
+                        note_frets[4] <= dout_fret;
+                        note_addr <= note_index;
+                        loading_state <= 6;
+                    end
+                    5: begin //We've just entered the load sequence
+                        loading_state <= 0;
+                        note_addr <= note_index;
+                    end
+                endcase
+            end
+            if(vcount == 1 && loading_state == 6)
+                loading_state <= 5; //reprime state for leading in next frame
+        
+            //calculate/refresh note-sprite x-values and fret numbers
+            x[0] <= (note_times[0] - song_time)*2 + playX;
+            x[1] <= (note_times[1] - song_time)*2 + playX;
+            x[2] <= (note_times[2] - song_time)*2 + playX;
+            x[3] <= (note_times[3] - song_time)*2 + playX;
+            x[4] <= (note_times[4] - song_time)*2 + playX;
+        end
     end
     //OR all the pixel bits together. Shoddy practice, could be improved
-    assign string_pixel = note_pixels[64:52]|note_pixels[51:39]|note_pixels[38:26]|note_pixels[25:13]|note_pixels[12:0];
+    assign string_pixel = note_pixels[0]|note_pixels[1]|note_pixels[2]|note_pixels[3]|note_pixels[4];
     
 endmodule

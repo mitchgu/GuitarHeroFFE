@@ -37,8 +37,8 @@ module nexys4_game(
     wire CLK25MHZ;
     clock_4divider clk_divider(.clk(CLK100MHZ),.clk_div(CLK25MHZ));
 
-    wire CLK65MHZ;
-    clk_wiz_65 clk_65(.clk_in(CLK100MHZ),.clk_out(CLK65MHZ));
+    wire CLK65MHZ, CLK130MHZ;
+    clk_wiz_65 clk_gen(.clk_in(CLK100MHZ),.clk_out(CLK65MHZ),.clk_out2(CLK130MHZ));
 
 //  INSTANTIATE SEVEN SEGMENT DISPLAY
     wire [31:0] seg_data;
@@ -95,6 +95,7 @@ module nexys4_game(
     SC_block SC(
         .clk(CLK100MHZ),
         .pause(pause),
+        .reset(reset),
         .song_time(song_time),
         .NDATA(NDATA),
         .metadata_link(metadata_link),
@@ -130,6 +131,7 @@ module nexys4_game(
     AV_block AV(
         .clk(CLK100MHZ),
         .clk65(CLK65MHZ),
+        .clk130(CLK130MHZ),
         .pause(pause),
         .song_time(song_time),
         .score(score),

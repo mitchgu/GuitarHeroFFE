@@ -8,7 +8,7 @@ module AV_menu_graphics(
     );
     
     localparam WIDTH = 800;
-    localparam HEIGHT = 600;
+    localparam HEIGHT = 200;
     localparam COLOR = 12'hD_D_D;
     localparam startX = 100;
     localparam startY = 50;

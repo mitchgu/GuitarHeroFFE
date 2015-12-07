@@ -1,6 +1,7 @@
 module SC_block(
     input clk, //100mhz clock
     input pause, //pause game status
+    input reset,
     input [15:0] song_time, //current song time
     input [36:0] NDATA, //deserialized note data
     input [37*16-1:0] metadata_link, //input from the metadata table
@@ -22,6 +23,7 @@ module SC_block(
     SC_note_matching_super note_matcher (
         .clk(clk),
         .pause(pause),
+        .reset(reset),
         .song_time(song_time),
         .NDATA(NDATA),
         .metadata_link(metadata_link),
@@ -46,6 +48,7 @@ module SC_block(
     
     SC_score score_mod (
         .clk(clk),
+        .reset(reset),
         .en(match_en),
         .dt(match_dt),
         

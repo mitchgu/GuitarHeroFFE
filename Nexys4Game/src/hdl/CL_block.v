@@ -158,6 +158,7 @@ module CL_block(
     CL_metadata_controller metadata_controller(
         .clk(clk),
         .clk25(clk25),
+        .reset(reset),
         .song_time(song_time),
         .write_en(write_data),
         .write_word(data_word),

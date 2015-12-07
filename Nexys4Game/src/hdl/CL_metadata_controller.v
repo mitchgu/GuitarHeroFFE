@@ -1,6 +1,7 @@
 module CL_metadata_controller(
     input clk, //100mhz clk
     input clk25, //25mhz clk
+    input reset,
     input [15:0] song_time,
     input write_en, //signals a new word to be written
     input [31:0] write_word, //word to be written    
@@ -115,50 +116,60 @@ module CL_metadata_controller(
     );
     
     always @(posedge clk) begin
-        if(song_time > 5)
-            running <= 1;
-    
-        if(metadata_request[24] == 1 && running && metadata_available[24] == 0) begin
-            metadata_link[25*16-1:24*16] <= douta24;
-            if(addra24 < 15)
-                addra24 <= addra24 + 1;
-            metadata_available[24] <= 1;
+        if(reset) begin
+            addra24 <= 0;
+            addra26 <= 0;
+            addra28 <= 0;
+            addra31 <= 0;
+            running <= 0;
+            metadata_available <= 0;
+            metadata_link <= 0;
         end
-        else
-            metadata_available[24] <= 0;
+        else begin
+            if(song_time > 5)
+                running <= 1;
         
-        if(metadata_request[26] == 1 && running && metadata_available[26] == 0) begin
-            metadata_link[27*16-1:26*16] <= douta26;
-            if(addra26 < 15)
-                addra26 <= addra26 + 1;
-            metadata_available[26] <= 1;
+            if(metadata_request[24] == 1 && running && metadata_available[24] == 0) begin
+                metadata_link[25*16-1:24*16] <= douta24;
+                if(addra24 < 15)
+                    addra24 <= addra24 + 1;
+                metadata_available[24] <= 1;
+            end
+            else
+                metadata_available[24] <= 0;
+            
+            if(metadata_request[26] == 1 && running && metadata_available[26] == 0) begin
+                metadata_link[27*16-1:26*16] <= douta26;
+                if(addra26 < 15)
+                    addra26 <= addra26 + 1;
+                metadata_available[26] <= 1;
+            end
+            else
+                metadata_available[26] <= 0;
+    
+            if(metadata_request[28] == 1 && running && metadata_available[28] == 0) begin
+                metadata_link[29*16-1:28*16] <= douta28;
+                if(addra28 < 15)
+                    addra28 <= addra28 + 1;
+                metadata_available[28] <= 1;
+            end
+            else
+                metadata_available[28] <= 0;
+    
+            if(metadata_request[31] == 1 && running && metadata_available[31] == 0) begin
+                metadata_link[32*16-1:31*16] <= douta31;
+                if(addra31 < 15)
+                    addra31 <= addra31 + 1;
+                metadata_available[31] <= 1;
+            end
+            else
+                metadata_available[31] <= 0;
         end
-        else
-            metadata_available[26] <= 0;
-
-        if(metadata_request[28] == 1 && running && metadata_available[28] == 0) begin
-            metadata_link[29*16-1:28*16] <= douta28;
-            if(addra28 < 15)
-                addra28 <= addra28 + 1;
-            metadata_available[28] <= 1;
-        end
-        else
-            metadata_available[28] <= 0;
-
-        if(metadata_request[31] == 1 && running && metadata_available[31] == 0) begin
-            metadata_link[32*16-1:31*16] <= douta31;
-            if(addra31 < 15)
-                addra31 <= addra31 + 1;
-            metadata_available[31] <= 1;
-        end
-        else
-            metadata_available[31] <= 0;
-
 
     end
 
 
-        
+        /*
     ila_metadata_controller dear_lord_save_me (
         .clk(clk),
         .probe0(addra24),
@@ -176,7 +187,7 @@ module CL_metadata_controller(
         .probe11(running),
         .probe12(song_time)
     );
-    
+    */
 
 
     /*
