@@ -155,14 +155,13 @@ module CL_block(
     //////////////////////////////////////////////////////////////////////////////////
     */
     
-    wire [36:0] md_request;
-    assign md_request = metadata_request&(~pause);
-    CL_metadata_controller metadata_memory(
+    CL_metadata_controller metadata_controller(
         .clk(clk),
         .clk25(clk25),
+        .song_time(song_time),
         .write_en(write_data),
         .write_word(data_word),
-        .metadata_request(md_request),
+        .metadata_request(metadata_request),
         
         //TODO
         

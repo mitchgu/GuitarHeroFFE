@@ -52,16 +52,4 @@ module SC_block(
         .score(score)
     );
     
-    ila_SC_block help (
-        .clk(clk),
-        .probe0(metadata_available),
-        .probe1(song_time),
-        .probe2(match_en),
-        .probe3(match_time),
-        .probe4(match_dt),
-        .probe5(score),
-        .probe6(metadata_link),
-        .probe7(metadata_request)
-    );
-    
 endmodule
