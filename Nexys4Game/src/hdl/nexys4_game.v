@@ -38,7 +38,7 @@ module nexys4_game(
     clock_4divider clk_divider(.clk(CLK100MHZ),.clk_div(CLK25MHZ));
 
     wire CLK65MHZ;
-    clk_wiz_65 clk_65(.clk_in(CLK100MHZ),.clk_out(CLK_65MHZ));
+    clk_wiz_65 clk_65(.clk_in(CLK100MHZ),.clk_out(CLK65MHZ));
 
 //  INSTANTIATE SEVEN SEGMENT DISPLAY
     wire [31:0] seg_data;
@@ -81,11 +81,22 @@ module nexys4_game(
     wire [15:0] fret_time;
     wire [5:0] fret_en;
     
+    reg [36:0] NDATA;
+    always @(posedge CLK100MHZ) begin //AI-driven guitar player
+        if(NDATA == 0) begin
+            NDATA <= 1;
+        end
+        else begin
+            NDATA[36:0] <= {NDATA[35:0], 1'b0};
+        end
+    end
+    
+    
     SC_block SC(
         .clk(CLK100MHZ),
         .pause(pause),
         .song_time(song_time),
-        .NDATA(),
+        .NDATA(NDATA),
         .metadata_link(metadata_link),
         .metadata_available(metadata_available),
         
@@ -119,6 +130,8 @@ module nexys4_game(
     AV_block AV(
         .clk(CLK100MHZ),
         .clk65(CLK65MHZ),
+        .pause(pause),
+        .song_time(song_time),
         .score(score),
         .fret(fret),
         .fret_time(fret_time),
@@ -146,19 +159,12 @@ module nexys4_game(
     assign switch0_noisy = SW[0];
     assign center_button_noisy = BTNC;
 
-    // Assign RGB LEDs from buttons
-    assign LED17_R = left_button;
-    assign LED17_G = up_button;
-    assign LED17_B = left_button & up_button;
-    assign LED16_R = right_button;
-    assign LED16_G = down_button;
-    assign LED16_B = right_button & down_button;
-    
     // Assign switch LEDs to switch states
     assign LED = SW;
     
     // Display 01234567 then fsm state and timer time left
-    assign seg_data = 32'h01234567;
+    assign seg_data[15:0] = song_time;
+    assign seg_data[31:16] = score[15:0];
 
 //
 //////////////////////////////////////////////////////////////////////////////////

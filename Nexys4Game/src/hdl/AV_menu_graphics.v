@@ -18,7 +18,7 @@ module AV_menu_graphics(
         if( hcount >= startX && hcount < (startX + WIDTH) &&
             vcount >= startY && vcount < (startY + HEIGHT))
             menu_pixel <= {pause, COLOR};
-        else menu_pixel <= 0;
+        else menu_pixel <= 13'b0;
     
     end
     

@@ -1,5 +1,6 @@
 module SC_note_matching_sub(
     input clk,
+    input pause,
     input [15:0] song_time, //current song time
     input note_edge, //if note has become active (must be a single-cycle pulse)
     input [15:0] note_time, //time of next note, or all 1's if no note in buffer
@@ -13,7 +14,7 @@ module SC_note_matching_sub(
     localparam NOTE_TIMEOUT = 100; //time it takes for a note to no longer be considered, in 10ms (100 = 1s) 
     
     initial past_note <= 0;
-    initial future_note <= 0;
+    initial future_note <= 1000;
     initial match_enable <= 0;
     initial match_time <= 0;
     
@@ -22,7 +23,10 @@ module SC_note_matching_sub(
         if(future_note < song_time && ~note_request) begin //if future note not in the future
             past_note <= future_note; //shift in the new past_note
             future_note <= 0; //invalid, will fail to match with extremely high probability due to overflow
-            note_request <= 1; //request new note
+        end
+        
+        if(future_note == 0) begin
+            note_request <= 1;
         end
         
         if(note_request && note_available) begin
@@ -34,15 +38,17 @@ module SC_note_matching_sub(
             past_note <= 0; //write invalid
         end
         
-        if(note_edge) begin
-            if( song_time - past_note < future_note - song_time) begin //match to past note. Note that if past_note is written invalid, this test will fail with extremely high probability
+        if(note_edge && ~pause) begin
+            if( (song_time - past_note < future_note - song_time) && past_note != 0) 
+            begin //match to past note. Note that if past_note is written invalid, this test will fail with extremely high probability
                 match_enable <= 1'b1;
                 match_time <= past_note;
                 past_note <= 0;
             end
-            else begin //match to future note
+            else if(future_note != 0 && (future_note - song_time < NOTE_TIMEOUT) ) begin //match to future note
                 match_enable <= 1'b1;
                 match_time <= future_note;
+                future_note <= 0;
             end
         end
         else if(match_enable) begin //reset match_enable

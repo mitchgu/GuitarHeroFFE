@@ -21,6 +21,7 @@ module SC_block(
     
     SC_note_matching_super note_matcher (
         .clk(clk),
+        .pause(pause),
         .song_time(song_time),
         .NDATA(NDATA),
         .metadata_link(metadata_link),
@@ -43,7 +44,7 @@ module SC_block(
         .fret_time(fret_time)
     );
     
-    SC_score score (
+    SC_score score_mod (
         .clk(clk),
         .en(match_en),
         .dt(match_dt),
@@ -51,6 +52,16 @@ module SC_block(
         .score(score)
     );
     
-    
+    ila_SC_block help (
+        .clk(clk),
+        .probe0(metadata_available),
+        .probe1(song_time),
+        .probe2(match_en),
+        .probe3(match_time),
+        .probe4(match_dt),
+        .probe5(score),
+        .probe6(metadata_link),
+        .probe7(metadata_request)
+    );
     
 endmodule
