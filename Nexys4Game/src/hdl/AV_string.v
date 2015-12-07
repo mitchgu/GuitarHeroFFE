@@ -27,7 +27,7 @@ module AV_string
 
     reg [4:0] note_frets[4:0];
 
-    wire [7:0] pdata_addr[4:0]; //CHANGE TO FRET VALUE ASSIGNMENT
+    wire [7:0] pdata_addr[4:0];
     assign pdata_addr[0] = note_frets[0]*13;
     assign pdata_addr[1] = note_frets[1]*13;
     assign pdata_addr[2] = note_frets[2]*13;
@@ -105,125 +105,6 @@ module AV_string
 
     assign paddr = paddrs[0]|paddrs[1]|paddrs[2]|paddrs[3]|paddrs[4];
 
-    //reg [9:0] y_loc = y_location;
-
-    /*
-    AV_note_sprite notes [4:0] (
-        .clk65(clk),
-        .x(x),
-        .y(y_loc),
-        .hcount(hcount),
-        .vcount(vcount),
-        .value(values),
-        
-        .note_pixel(note_pixels)
-    );
-    */
-
-    /* REGISTER METADATA IS BAD
-
-    reg [511:0] note_times;
-    reg [159:0] note_frets;
-    
-    initial begin //Mary had a Little Lamb
-    note_times[511:496] = 200;
-    note_frets[159:155] = 4;
-
-    note_times[495:480] = 300;
-    note_frets[154:150] = 2;
-
-    note_times[479:464] = 400;
-    note_frets[149:145] = 0;
-
-    note_times[463:448] = 500;
-    note_frets[144:140] = 2;
-
-    note_times[447:432] = 600;
-    note_frets[139:135] = 4;
-
-    note_times[431:416] = 700;
-    note_frets[134:130] = 4;
-
-    note_times[415:400] = 800;
-    note_frets[129:125] = 4;
-
-    note_times[399:384] = 1000;
-    note_frets[124:120] = 2;
-
-    note_times[383:368] = 1100;
-    note_frets[119:115] = 2;
-
-    note_times[367:352] = 1200;
-    note_frets[114:110] = 2;
-
-    note_times[351:336] = 1400;
-    note_frets[109:105] = 4;
-
-    note_times[335:320] = 1500;
-    note_frets[104:100] = 7;
-
-    note_times[319:304] = 1600;
-    note_frets[99:95] = 7;
-
-    note_times[303:288] = 1800;
-    note_frets[94:90] = 4;
-
-    note_times[287:272] = 1900;
-    note_frets[89:85] = 2;
-
-    note_times[271:256] = 2000;
-    note_frets[84:80] = 0;
-
-    note_times[255:240] = 2100;
-    note_frets[79:75] = 2;
-
-    note_times[239:224] = 2200;
-    note_frets[74:70] = 4;
-
-    note_times[223:208] = 2300;
-    note_frets[69:65] = 4;
-
-    note_times[207:192] = 2400;
-    note_frets[64:60] = 4;
-
-    note_times[191:176] = 2500;
-    note_frets[59:55] = 4;
-
-    note_times[175:160] = 2600;
-    note_frets[54:50] = 2;
-
-    note_times[159:144] = 2700;
-    note_frets[49:45] = 2;
-
-    note_times[143:128] = 2800;
-    note_frets[44:40] = 4;
-
-    note_times[127:112] = 2900;
-    note_frets[39:35] = 2;
-
-    note_times[111:96] = 3000;
-    note_frets[34:30] = 0;
-
-    note_times[95:80] = 0;
-    note_frets[29:25] = 0;
-
-    note_times[79:64] = 0;
-    note_frets[24:20] = 0;
-
-    note_times[51:48] = 0;
-    note_frets[19:15] = 0;
-
-    note_times[47:32] = 0;
-    note_frets[14:10] = 0;
-
-    note_times[31:16] = 0;
-    note_frets[9:5] = 0;
-
-    note_times[15:0] = 0;
-    note_frets[4:0] = 0;
-    end
-    
-    */
     
     reg [4:0] note_index = 0;
     reg [4:0] note_addr = 0;
@@ -247,18 +128,54 @@ module AV_string
     reg[2:0] loading_state = 5;
     reg [15:0] note_times[4:0];
     
+    reg [4:0] note_matched = 0;
+        
+    wire [15:0] xpos[4:0]; //position math, with 16-bit value
+    assign xpos[0] = (note_times[0] - song_time)*2 + playX;
+    assign xpos[1] = (note_times[1] - song_time)*2 + playX;
+    assign xpos[2] = (note_times[2] - song_time)*2 + playX;
+    assign xpos[3] = (note_times[3] - song_time)*2 + playX;
+    assign xpos[4] = (note_times[4] - song_time)*2 + playX;    
+
+    
     always @(posedge clk65) begin
 
         if(reset) begin
             note_index <= 0;
             note_addr <= 0;
             loading_state <= 5;
+            note_times[0] <= 0;
+            note_times[1] <= 0;
+            note_times[2] <= 0;
+            note_times[3] <= 0;
+            note_times[4] <= 0;
+            note_matched <= 0;
         end
-            else begin
-            if( (song_time > note_times[0]) && (song_time - note_times[0] > 50) ) begin
-            //if the note is old, and it is older than 500ms, get rid of it
+        else begin
+            if( (song_time > note_times[0]) && (song_time - note_times[0] > 50) && (vcount == 1 && hcount == 0) ) begin //if the note is old, and it is older than 500ms, get rid of it
                 note_index <= note_index + 1;
+                note_matched[3:0] <= note_matched[4:1];
+                note_matched[4] <= 0;
             end
+
+            if(match_en) begin
+                if(match_time == note_times[0]) begin
+                    note_matched[0] <= 1;
+                end
+                else if(match_time == note_times[1]) begin
+                    note_matched[1] <= 1;
+                end
+                else if(match_time == note_times[2]) begin
+                    note_matched[2] <= 1;
+                end
+                else if(match_time == note_times[3]) begin
+                    note_matched[3] <= 1;
+                end
+                else if(match_time == note_times[4]) begin
+                    note_matched[4] <= 1;
+                end
+            end
+
 
             if(vcount == 0) begin //update all of the notes. Only need to do this once a frame
                 case(loading_state)
@@ -300,16 +217,47 @@ module AV_string
             end
             if(vcount == 1 && loading_state == 6)
                 loading_state <= 5; //reprime state for leading in next frame
-        
+
+
             //calculate/refresh note-sprite x-values and fret numbers
-            x[0] <= (note_times[0] - song_time)*2 + playX;
-            x[1] <= (note_times[1] - song_time)*2 + playX;
-            x[2] <= (note_times[2] - song_time)*2 + playX;
-            x[3] <= (note_times[3] - song_time)*2 + playX;
-            x[4] <= (note_times[4] - song_time)*2 + playX;
+            if( xpos[0] > 1023)
+                x[0] <= 1023;
+            else
+                x[0] <= xpos[0][9:0];
+
+            if( xpos[1] > 1023)
+                x[1] <= 1023;
+            else
+                x[1] <= xpos[1][9:0];
+
+            if( xpos[2] > 1023)
+                x[2] <= 1023;
+            else
+                x[2] <= xpos[2][9:0];
+
+            if( xpos[3] > 1023)
+                x[3] <= 1023;
+            else
+                x[3] <= xpos[3][9:0];
+
+            if( xpos[4] > 1023)
+                x[4] <= 1023;
+            else
+                x[4] <= xpos[4][9:0];
+
+                
+                
         end
     end
     //OR all the pixel bits together. Shoddy practice, could be improved
-    assign string_pixel = note_pixels[0]|note_pixels[1]|note_pixels[2]|note_pixels[3]|note_pixels[4];
+    assign string_pixel[12] = note_pixels[0][12]|note_pixels[1][12]|note_pixels[2][12]|note_pixels[3][12]|note_pixels[4][12];
+    wire [11:0] note_pixels_inv[4:0];
+    assign note_pixels_inv[0] = note_pixels[0][11:0]^{12{note_matched[0]&note_pixels[0][12]}};
+    assign note_pixels_inv[1] = note_pixels[1][11:0]^{12{note_matched[1]&note_pixels[1][12]}};
+    assign note_pixels_inv[2] = note_pixels[2][11:0]^{12{note_matched[2]&note_pixels[2][12]}};
+    assign note_pixels_inv[3] = note_pixels[3][11:0]^{12{note_matched[3]&note_pixels[3][12]}};
+    assign note_pixels_inv[4] = note_pixels[4][11:0]^{12{note_matched[4]&note_pixels[4][12]}};
+
+    assign string_pixel[11:0] = note_pixels_inv[0]|note_pixels_inv[1]|note_pixels_inv[2]|note_pixels_inv[3]|note_pixels_inv[4];
     
 endmodule

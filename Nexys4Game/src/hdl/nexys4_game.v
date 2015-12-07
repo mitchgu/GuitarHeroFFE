@@ -52,12 +52,20 @@ module nexys4_game(
 
     // Debounce pause switch
     wire switch0_noisy, switch0;
-    debounce down_button_debouncer(
+    debounce switch0_debouncer(
         .clock(CLK100MHZ),
         .reset(reset_debounce),
         .noisy(switch0_noisy),
         .clean(switch0));
-                        
+        
+        // Debounce pause switch
+    wire switch1_noisy, switch1;
+    debounce switch1_debouncer(
+        .clock(CLK100MHZ),
+        .reset(reset_debounce),
+        .noisy(switch1_noisy),
+        .clean(switch1));
+                       
     // Debounce reset button
     wire center_button_noisy, center_button;
     debounce center_button_debouncer(
@@ -82,15 +90,30 @@ module nexys4_game(
     wire [5:0] fret_en;
     
     reg [36:0] NDATA;
-    always @(posedge CLK100MHZ) begin //AI-driven guitar player
-        if(NDATA == 0) begin
-            NDATA <= 1;
-        end
-        else begin
-            NDATA[36:0] <= {NDATA[35:0], 1'b0};
-        end
-    end
     
+    /*
+    wire [47:0] active;
+    note_deserializer deserial(
+        .clk(CLK100MHZ),
+        .note_serial_sync(JA[1]),
+        .note_serial_data(JA[0]),
+        .active(active)
+    );
+    */
+    always @(posedge CLK100MHZ) begin //AI-driven guitar player
+        //if(switch1) begin
+            if(NDATA == 0) begin
+                NDATA <= 1;
+            end
+            else begin
+                NDATA[36:0] <= {NDATA[35:0], 1'b0};
+            end
+        //end
+        //else begin
+            //NDATA[0] <= 0;
+            //NDATA[36:1] <= active[35:0];
+        //end
+    end
     
     SC_block SC(
         .clk(CLK100MHZ),
@@ -159,6 +182,7 @@ module nexys4_game(
     // Debounce all buttons
     assign reset_debounce = 0;
     assign switch0_noisy = SW[0];
+    assign switch1_noist = SW[1];
     assign center_button_noisy = BTNC;
 
     // Assign switch LEDs to switch states

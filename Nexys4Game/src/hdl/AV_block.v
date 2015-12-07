@@ -160,6 +160,7 @@ module AV_block(
     (
         .clk65(clk65),
         .clk130(clk130),
+        .reset(reset),
         .song_time(song_time),
         .match_en(fret_en[5]),
         .fret(fret[29:25]),
@@ -179,6 +180,7 @@ module AV_block(
     (
         .clk65(clk65),
         .clk130(clk130),
+        .reset(reset),
         .song_time(song_time),
         .match_en(fret_en[4]),
         .fret(fret[24:20]),
@@ -198,6 +200,7 @@ module AV_block(
     (
         .clk65(clk65),
         .clk130(clk130),
+        .reset(reset),
         .song_time(song_time),
         .match_en(fret_en[3]),
         .fret(fret[19:15]),
@@ -217,6 +220,7 @@ module AV_block(
     (
         .clk65(clk65),
         .clk130(clk130),
+        .reset(reset),
         .song_time(song_time),
         .match_en(fret_en[2]),
         .fret(fret[14:10]),
@@ -236,6 +240,7 @@ module AV_block(
     (
         .clk65(clk65),
         .clk130(clk130),
+        .reset(reset),
         .song_time(song_time),
         .match_en(fret_en[1]),
         .fret(fret[9:5]),
@@ -255,6 +260,7 @@ module AV_block(
     (
         .clk65(clk65),
         .clk130(clk130),
+        .reset(reset),
         .song_time(song_time),
         .match_en(fret_en[0]),
         .fret(fret[4:0]),
