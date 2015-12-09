@@ -27,7 +27,7 @@ module note_serializer(
     output reg note_serial_data
     );
 
-    reg [6:0] counter = 0;
+    reg [12:0] counter = 0;
     reg [5:0] serial_counter = 0;
 
     always @(posedge clk) begin

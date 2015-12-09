@@ -36,8 +36,8 @@ module process_correlation(
     output reg [9:0] thresh_low
     );
 
-    parameter THRESH_HIGH = 450;
-    parameter THRESH_LOW = 250;
+    parameter THRESH_HIGH = 1000;
+    parameter THRESH_LOW = 750;
 
     initial active = 0;
     initial thresh_low = THRESH_LOW;

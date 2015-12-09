@@ -483,22 +483,22 @@ module nexys4_guitar (
     defparam pcorrelate_gen[21].pc.THRESH_LOW = 10'h0DA;
     defparam pcorrelate_gen[22].pc.THRESH_HIGH = 10'h19A;
     defparam pcorrelate_gen[22].pc.THRESH_LOW = 10'h0F2;
-    defparam pcorrelate_gen[23].pc.THRESH_HIGH = 10'h20E;
-    defparam pcorrelate_gen[23].pc.THRESH_LOW = 10'h0D8;
+    defparam pcorrelate_gen[23].pc.THRESH_HIGH = 10'h28E;
+    defparam pcorrelate_gen[23].pc.THRESH_LOW = 10'h194;
     defparam pcorrelate_gen[24].pc.THRESH_HIGH = 10'h19A;
     defparam pcorrelate_gen[24].pc.THRESH_LOW = 10'h0C4;
-    defparam pcorrelate_gen[25].pc.THRESH_HIGH = 10'h172;
-    defparam pcorrelate_gen[25].pc.THRESH_LOW = 10'h0D0;
-    defparam pcorrelate_gen[26].pc.THRESH_HIGH = 10'h146;
-    defparam pcorrelate_gen[26].pc.THRESH_LOW = 10'h0B0;
-    defparam pcorrelate_gen[27].pc.THRESH_HIGH = 10'h14A;
-    defparam pcorrelate_gen[27].pc.THRESH_LOW = 10'h0BC;
+    defparam pcorrelate_gen[25].pc.THRESH_HIGH = 10'h24E;
+    defparam pcorrelate_gen[25].pc.THRESH_LOW = 10'h178;
+    defparam pcorrelate_gen[26].pc.THRESH_HIGH = 10'h20A;
+    defparam pcorrelate_gen[26].pc.THRESH_LOW = 10'h158;
+    defparam pcorrelate_gen[27].pc.THRESH_HIGH = 10'h1B6;
+    defparam pcorrelate_gen[27].pc.THRESH_LOW = 10'h134;
     defparam pcorrelate_gen[28].pc.THRESH_HIGH = 10'h19E;
     defparam pcorrelate_gen[28].pc.THRESH_LOW = 10'h10C;
-    defparam pcorrelate_gen[29].pc.THRESH_HIGH = 10'h1BA;
+    defparam pcorrelate_gen[29].pc.THRESH_HIGH = 10'h16A;
     defparam pcorrelate_gen[29].pc.THRESH_LOW = 10'h0FC;
-    defparam pcorrelate_gen[30].pc.THRESH_HIGH = 10'h18E;
-    defparam pcorrelate_gen[30].pc.THRESH_LOW = 10'h0D0;
+    defparam pcorrelate_gen[30].pc.THRESH_HIGH = 10'h1F2;
+    defparam pcorrelate_gen[30].pc.THRESH_LOW = 10'h120;
     defparam pcorrelate_gen[31].pc.THRESH_HIGH = 10'h16A;
     defparam pcorrelate_gen[31].pc.THRESH_LOW = 10'h0CC;
 
@@ -533,6 +533,7 @@ module nexys4_guitar (
 
     wire [47:0] active_fifo_out;
     wire active_fifo_empty;
+    reg active_fifo_read;
     fifo_generator_1 active_fifo(
         .wr_clk(clk_65mhz),
         .din(active),
@@ -541,7 +542,7 @@ module nexys4_guitar (
         .rd_clk(CLK100MHZ),
         .empty(active_fifo_empty),
         .dout(active_fifo_out),
-        .rd_en(~active_fifo_empty)
+        .rd_en(active_fifo_read)
         );
 
     always @(posedge clk_65mhz) begin
@@ -549,11 +550,13 @@ module nexys4_guitar (
         dec_thresh[SWS[5:0]] <= down_button_pulse;
     end
 
-    reg expecting_read;
     reg [47:0] active_100mhz;
     always @(posedge CLK100MHZ) begin
-        expecting_read <= ~active_fifo_empty;
-        if (expecting_read) active_100mhz <= active_fifo_out;
+        if (~active_fifo_empty) begin
+            active_100mhz <= active_fifo_out;
+            active_fifo_read <= 1;
+        end
+        else active_fifo_read <= 0;
     end
 
     wire note_serial_sync, note_serial_data;
