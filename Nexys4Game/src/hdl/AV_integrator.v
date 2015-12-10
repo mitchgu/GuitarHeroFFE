@@ -1,6 +1,6 @@
 module AV_integrator(
     input clk65,
-    
+    input pause,
     input [12:0] menu_pixel,
     input [12:0] score_pixel,
     input [12:0] string1_pixel, //MSB is whether or not to use the pixel
@@ -12,10 +12,10 @@ module AV_integrator(
     
     input [11:0] bg_pixel,
     
-    output [11:0] pixel
+    output [11:0] pixel_out
     
     );
-    
+    wire [11:0] pixel;
     assign pixel = menu_pixel[12] ? menu_pixel[11:0] :
                     score_pixel[12] ? score_pixel[11:0] :
                     string1_pixel[12] ? string1_pixel[11:0] :
@@ -25,7 +25,7 @@ module AV_integrator(
                     string5_pixel[12] ? string5_pixel[11:0] :
                     string6_pixel[12] ? string6_pixel[11:0] :
                     bg_pixel[11:0];
-
+    assign pixel_out = pause ? ~pixel : pixel;
     
     /*
     

@@ -27,16 +27,19 @@ module note_deserializer(
     output reg [47:0] active
     );
 
-    reg [6:0] counter = 0;
+    reg last_note_serial_sync;
+    reg [12:0] counter = 0;
     reg [5:0] serial_counter = 0;
 
     always @(posedge clk) begin
-        counter <= counter + 1;
-        if (~|counter) begin
+        if (note_serial_sync & ~last_note_serial_sync) counter <= 1;
+        else counter <= counter + 1;
+        if (counter == 64) begin
             if (note_serial_sync) begin
                 serial_counter <= 0;
             end
             if (serial_counter < 48) active[serial_counter] <= note_serial_data;
+            serial_counter <= serial_counter + 1;
         end
     end
 endmodule

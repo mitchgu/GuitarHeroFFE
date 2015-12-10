@@ -2,6 +2,7 @@ module AV_block(
     input clk,
     input clk65,
     input clk130,
+    input reset,
     input pause,
     input [15:0] song_time,
     input [31:0] score,
@@ -122,7 +123,8 @@ module AV_block(
     wire [11:0] pixel_out;
     AV_integrator integrator(
         .clk65(clk65),
-        .menu_pixel(menu_pixel),
+        .pause(pause),
+        .menu_pixel(13'b0),
         .score_pixel(13'b0),
         .string1_pixel(13'b0),
         .string2_pixel(13'b0),
@@ -131,7 +133,7 @@ module AV_block(
         .string5_pixel(13'b0),
         .string6_pixel(string_pixel6),
         .bg_pixel(bg_pixel),
-        .pixel( pixel_out )
+        .pixel_out( pixel_out )
     );
     
     assign {VGA_R, VGA_G, VGA_B} = pblank ? 12'b0 : pixel_out;
