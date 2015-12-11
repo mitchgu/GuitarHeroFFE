@@ -2,20 +2,19 @@
 <Root MajorVersion="0" MinorVersion="33">
   <CompositeFile CompositeFileTopName="fft_mag" CanBeSetAsTop="false" CanDisplayChildGraph="true">
     <Description>Composite Fileset</Description>
-    <Generation Name="SYNTHESIS" State="GENERATED" Timestamp="1449443425"/>
-    <Generation Name="IMPLEMENTATION" State="GENERATED" Timestamp="1449443425"/>
-    <Generation Name="SIMULATION" State="GENERATED" Timestamp="1449443425"/>
+    <Generation Name="SYNTHESIS" State="GENERATED" Timestamp="1449826971"/>
+    <Generation Name="IMPLEMENTATION" State="GENERATED" Timestamp="1449826971"/>
+    <Generation Name="SIMULATION" State="GENERATED" Timestamp="1449826971"/>
     <FileCollection Name="SOURCES" Type="SOURCES">
-      <File Name="ip\fft_mag_xfft_0_0\fft_mag_xfft_0_0.xci" Type="IP">
-        <Instance HierarchyPath="xfft_0"/>
-        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
+      <File Name="hdl\fft_mag.v" Type="Verilog">
+        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="false" IsStatusTracked="false"/>
         <Library Name="xil_defaultlib"/>
         <UsedIn Val="SYNTHESIS"/>
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="SIMULATION"/>
       </File>
-      <File Name="ip\fft_mag_cordic_0_0\fft_mag_cordic_0_0.xci" Type="IP">
-        <Instance HierarchyPath="cordic_0"/>
+      <File Name="ip\fft_mag_axis_register_slice_2_0\fft_mag_axis_register_slice_2_0.xci" Type="IP">
+        <Instance HierarchyPath="axis_register_slice_2"/>
         <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
         <Library Name="xil_defaultlib"/>
         <UsedIn Val="SYNTHESIS"/>
@@ -30,16 +29,16 @@
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="SIMULATION"/>
       </File>
-      <File Name="ip\fft_mag_mult_gen_0_0\fft_mag_mult_gen_0_0.xci" Type="IP">
-        <Instance HierarchyPath="mult_gen_0"/>
+      <File Name="ip\fft_mag_cordic_0_0\fft_mag_cordic_0_0.xci" Type="IP">
+        <Instance HierarchyPath="cordic_0"/>
         <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
         <Library Name="xil_defaultlib"/>
         <UsedIn Val="SYNTHESIS"/>
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="SIMULATION"/>
       </File>
-      <File Name="ip\fft_mag_xlslice_0_0\fft_mag_xlslice_0_0.xci" Type="IP">
-        <Instance HierarchyPath="xlslice_0"/>
+      <File Name="ip\fft_mag_mult_gen_0_0\fft_mag_mult_gen_0_0.xci" Type="IP">
+        <Instance HierarchyPath="mult_gen_0"/>
         <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
         <Library Name="xil_defaultlib"/>
         <UsedIn Val="SYNTHESIS"/>
@@ -54,8 +53,8 @@
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="SIMULATION"/>
       </File>
-      <File Name="ip\fft_mag_xlslice_1_0\fft_mag_xlslice_1_0.xci" Type="IP">
-        <Instance HierarchyPath="xlslice_1"/>
+      <File Name="ip\fft_mag_xfft_0_0\fft_mag_xfft_0_0.xci" Type="IP">
+        <Instance HierarchyPath="xfft_0"/>
         <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
         <Library Name="xil_defaultlib"/>
         <UsedIn Val="SYNTHESIS"/>
@@ -70,15 +69,7 @@
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="SIMULATION"/>
       </File>
-      <File Name="ip\fft_mag_axis_register_slice_2_0\fft_mag_axis_register_slice_2_0.xci" Type="IP">
-        <Instance HierarchyPath="axis_register_slice_2"/>
-        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
-        <Library Name="xil_defaultlib"/>
-        <UsedIn Val="SYNTHESIS"/>
-        <UsedIn Val="IMPLEMENTATION"/>
-        <UsedIn Val="SIMULATION"/>
-      </File>
-      <File Name="ip\fft_mag_xlconstant_0_1\fft_mag_xlconstant_0_1.xci" Type="IP">
+      <File Name="ip\fft_mag_xlconstant_1_0\fft_mag_xlconstant_1_0.xci" Type="IP">
         <Instance HierarchyPath="xlconstant_1"/>
         <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
         <Library Name="xil_defaultlib"/>
@@ -86,7 +77,7 @@
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="SIMULATION"/>
       </File>
-      <File Name="ip\fft_mag_xlconstant_2_0_1\fft_mag_xlconstant_2_0.xci" Type="IP">
+      <File Name="ip\fft_mag_xlconstant_2_0\fft_mag_xlconstant_2_0.xci" Type="IP">
         <Instance HierarchyPath="xlconstant_2"/>
         <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
         <Library Name="xil_defaultlib"/>
@@ -94,8 +85,17 @@
         <UsedIn Val="IMPLEMENTATION"/>
         <UsedIn Val="SIMULATION"/>
       </File>
-      <File Name="hdl\fft_mag.v" Type="Verilog">
-        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="false" IsStatusTracked="false"/>
+      <File Name="ip\fft_mag_xlslice_0_0\fft_mag_xlslice_0_0.xci" Type="IP">
+        <Instance HierarchyPath="xlslice_0"/>
+        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
+        <Library Name="xil_defaultlib"/>
+        <UsedIn Val="SYNTHESIS"/>
+        <UsedIn Val="IMPLEMENTATION"/>
+        <UsedIn Val="SIMULATION"/>
+      </File>
+      <File Name="ip\fft_mag_xlslice_1_0\fft_mag_xlslice_1_0.xci" Type="IP">
+        <Instance HierarchyPath="xlslice_1"/>
+        <Properties IsEditable="false" IsVisible="true" Timestamp="0" IsTrackable="true" IsStatusTracked="true"/>
         <Library Name="xil_defaultlib"/>
         <UsedIn Val="SYNTHESIS"/>
         <UsedIn Val="IMPLEMENTATION"/>

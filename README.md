@@ -30,6 +30,20 @@ In the SD dumps folder, there are original hex dumps (4 for each of 48 notes/cho
 
 In the scripts folder, there are various python scripts that were used for COE and MIF file generation, SD card reading, image processing, and printing repetitive blocks of Verilog code.
 
+## Assembling the project from scratch
+The procedure is roughly as follows for either the Nexys4Game or Nexys4Guitar part:
+
+1. Create a new Vivado project in the proj directory.
+2. Add all the hdl in src/hdl to the project
+3. Add all test benches in src/test to the project
+4. Add all the ips in src/ip to the project
+5. Add all block designs (if any) in src/bd to the project
+6. Ensure that all block ram ips that have a corresponding coe file in the src/coe directory are correctly linked to that coe file (this is done in the IP configuration window). This is most applicable to the Nexys4Game project. The bg_run_table coe may take several minutes to validate.
+7. Add all constraints in src/constraints to the project
+8. Cross your fingers and synthesize/implement/write bitstream
+
+Note: For the Nexys4Guitar project, Vivado will likely complain that "Complex defparams are not supported." In that case, entering the following in the TCL console will allow complex defparams: `set_param synth.elaboration.rodinMoreOptions "rt::set_parameter allowIndexedDefparam true"`
+
 ### Documentation
 The `docs` folder contains 6.111 project documentation in pdf form such as:
 * Project abstract

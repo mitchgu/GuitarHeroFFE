@@ -32,6 +32,7 @@ module note_deserializer(
     reg [5:0] serial_counter = 0;
 
     always @(posedge clk) begin
+        last_note_serial_sync <= note_serial_sync;
         if (note_serial_sync & ~last_note_serial_sync) counter <= 1;
         else counter <= counter + 1;
         if (counter == 64) begin

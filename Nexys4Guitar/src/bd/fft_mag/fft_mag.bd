@@ -457,7 +457,7 @@
         <spirit:instanceName>xlconstant_1</spirit:instanceName>
         <spirit:componentRef spirit:library="ip" spirit:name="xlconstant" spirit:vendor="xilinx.com" spirit:version="1.1"/>
         <spirit:configurableElementValues>
-          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlconstant_0_1</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="bd:xciName">fft_mag_xlconstant_1_0</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="CONST_VAL">1</spirit:configurableElementValue>
         </spirit:configurableElementValues>
       </spirit:componentInstance>
