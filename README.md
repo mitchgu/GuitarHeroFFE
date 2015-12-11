@@ -37,14 +37,17 @@ The procedure is roughly as follows for either the Nexys4Game or Nexys4Guitar pa
 2. Add all the hdl in src/hdl to the project
 3. Add all test benches in src/test to the project
 4. Add all the ips in src/ip to the project
-5. Add all block designs (if any) in src/bd to the project
+5. Add all block designs (if any) in src/bd to the project (See first note below)
 6. Ensure that all block ram ips that have a corresponding coe file in the src/coe directory are correctly linked to that coe file (this is done in the IP configuration window). This is most applicable to the Nexys4Game project. The bg_run_table coe may take several minutes to validate.
 7. Add all constraints in src/constraints to the project
 8. Cross your fingers and synthesize/implement/write bitstream
 
-Note: For the Nexys4Guitar project, Vivado will likely complain that "Complex defparams are not supported." In that case, entering the following in the TCL console will allow complex defparams: `set_param synth.elaboration.rodinMoreOptions "rt::set_parameter allowIndexedDefparam true"`
+### Notes
 
-### Documentation
+* The fft_mag.bd block design won't validate correctly right after import. First one has to change the addsub to asynchronous mode (latency 0) and validate, then wire the axi register slice's tlast to the CORDIC's tlast. After that, the block design should be configured correctly.
+* For the Nexys4Guitar project, Vivado will likely complain that "Complex defparams are not supported." In that case, entering the following in the TCL console will allow complex defparams: `set_param synth.elaboration.rodinMoreOptions "rt::set_parameter allowIndexedDefparam true"`
+
+## Documentation
 The `docs` folder contains 6.111 project documentation in pdf form such as:
 * Project abstract
 * Project proposal draft (including block diagram)
